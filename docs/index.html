@@ -119,9 +119,8 @@
 
     <div class="panel">
       <h2>Backend endpoint</h2>
-      <p>Paste your public CORTEX backend URL here. It must expose <code>/api/ask</code> and allow CORS.</p>
-      <input id="apiUrl" class="api-url" placeholder="https://your-backend.example.com" />
-      <p class="note">A GitHub Pages site can only host the frontend. The engine runs on a separate public server, which is required for the app to answer questions.</p>
+      <p>This page is preconfigured to use the public CORTEX backend at <code>https://cortexwebbackend.onrender.com</code>.</p>
+      <p class="note">Visitors do not need to enter any backend URL. The frontend will always use the built-in public backend.</p>
     </div>
 
     <div class="panel">
@@ -149,15 +148,15 @@
   </div>
 
   <script>
+    const DEFAULT_BACKEND_URL = 'https://cortexwebbackend.onrender.com';
     const queryInput = document.getElementById('query');
-    const apiUrlInput = document.getElementById('apiUrl');
     const responseDiv = document.getElementById('response');
     const sendButton = document.getElementById('send');
     const clearButton = document.getElementById('clear');
 
     async function sendQuery() {
       const query = queryInput.value.trim();
-      const apiBase = apiUrlInput.value.trim().replace(/\/+$/, '');
+      const apiBase = DEFAULT_BACKEND_URL;
       if (!query) {
         responseDiv.textContent = 'Please enter a question or command.';
         return;

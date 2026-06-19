@@ -393,8 +393,13 @@
       attachPdf.addEventListener('click', handlePdfUpload);
       voiceBtn.addEventListener('click', () => addSystemMessage('Voice input is available in the next release.'));
       stopBtn.addEventListener('click', () => { if (currentAbort) currentAbort.abort(); });
-      newChatBtn.addEventListener('click', () => addSystemMessage('Started a new chat session.'));
-      settingsToggle.addEventListener('click', () => addSystemMessage('Settings panel will open here.'));
+      newChatBtn.addEventListener('click', () => {
+        messageArea.innerHTML = '';
+        addSystemMessage('New chat session started. Your previous conversation view was cleared.');
+      });
+      settingsToggle.addEventListener('click', () => {
+        addSystemMessage('Settings panel is not available in this version, but the assistant is ready.');
+      });
       chatSearch.addEventListener('input', () => {
         const query = chatSearch.value.toLowerCase();
         const filtered = chatItems.filter(item => item.title.toLowerCase().includes(query) || item.preview.toLowerCase().includes(query));

@@ -97,6 +97,43 @@ class ReasoningEngine:
                 return "\n".join(lines)
             return f"I do not have a stored memory for '{query_key}'."
 
+        if "capital of" in request_lower:
+            country = request_lower.split("capital of", 1)[1].strip().strip(" ?.")
+            capitals = {
+                "france": "Paris",
+                "germany": "Berlin",
+                "spain": "Madrid",
+                "italy": "Rome",
+                "united states": "Washington, D.C.",
+                "usa": "Washington, D.C.",
+                "united kingdom": "London",
+                "uk": "London",
+                "canada": "Ottawa",
+                "japan": "Tokyo",
+                "china": "Beijing",
+                "australia": "Canberra",
+                "india": "New Delhi",
+                "brazil": "Brasília",
+                "russia": "Moscow",
+                "mexico": "Mexico City",
+            }
+            if country in capitals:
+                return f"The capital of {country.title()} is {capitals[country]}."
+            return (
+                f"The capital of {country.title()} is not in my built-in list, "
+                "but many resources identify the principal city by that name. "
+                "If you need the precise capital, please ask with a specific country name."
+            )
+
+        if "meaning of life" in request_lower or "purpose of life" in request_lower:
+            return (
+                "The meaning of life is a question often answered through personal values, "
+                "purpose, and the relationships we build. "
+                "From an engineering and practical perspective, it can mean creating useful work, "
+                "solving problems, and supporting others. "
+                "If you want, I can help explore a concrete goal or project that feels meaningful to you."
+            )
+
         if "cup of tea" in request_lower or ("make" in request_lower and "tea" in request_lower):
             return (
                 "Analysis Complete.\n"
@@ -391,14 +428,7 @@ class ReasoningEngine:
         return "Verified: the response was reviewed for consistency and follows the identified intent and concepts."
 
     def _format_structured_response(self, request: str, core_answer: str, analysis: dict, answer_source: str) -> str:
-        return (
-            f"Intent: {analysis['intent']}\n"
-            f"Concepts: {', '.join(analysis['concepts']) or 'none identified'}\n"
-            f"Missing information: {', '.join(analysis['missing']) if analysis['missing'] else 'none'}\n\n"
-            f"Reasoning:\n{self._build_reasoning_chain(analysis, answer_source)}\n\n"
-            f"Answer:\n{core_answer.strip()}\n\n"
-            f"Verification:\n{self._verify_response_consistency(request, core_answer, analysis)}"
-        )
+        return core_answer.strip()
 
     def _should_generate_ideas(self, request_lower: str) -> bool:
         idea_triggers = [
@@ -541,16 +571,17 @@ class ReasoningEngine:
                 f"Missing information: {', '.join(analysis['missing']) or 'none'}\n"
             )
         return (
-            "You are CORTEX, a professional computational intelligence assistant. "
-            "Before answering, perform these steps: 1) understand the user's intent, 2) extract important concepts, "
-            "3) identify missing information, 4) build a logical reasoning chain, 5) generate a structured response, "
-            "and 6) verify final consistency. Answer clearly, accurately, and with a calm engineering style. "
-            "When appropriate, provide step-by-step guidance, comparisons, and practical recommendations.\n"
+            "You are CORTEX, a premium commercial AI assistant for business, engineering, and product teams. "
+            "Provide high-quality, well-structured answers, practical guidance, and professional recommendations. "
+            "Keep responses concise but complete, with actionable next steps when appropriate. "
+            "Focus on clarity, accuracy, and commercial usability.\n"
+            "When answering, use this structure when it helps: 1) quick summary, 2) core reasoning, 3) recommended next steps, 4) risks or considerations.\n"
+            "If the user asks for creative ideas, strategy, or product direction, include market-aware insights, user focus, and efficiency trade-offs.\n"
             f"User name: {user_name}\n"
             f"{memory_summary}\n"
             f"{analysis_block}\n"
             f"Question: {request}\n"
-            "If the query seeks factual knowledge, prefer concise explanations and cite the source when possible."
+            "If the query is technical, cite key concepts and provide practical examples."
         )
 
     def _query_knowledge(self, request: str) -> Optional[str]:
@@ -654,7 +685,9 @@ class ReasoningEngine:
             )
             return self._format_structured_response(request, core_answer, analysis, "local")
 
-        knowledge_answer = self._query_knowledge(request)
+        knowledge_answer = None
+        if self._should_use_wikipedia(request_lower):
+            knowledge_answer = self._query_knowledge(request)
         if knowledge_answer:
             return self._format_structured_response(request, knowledge_answer, analysis, "knowledge")
 

@@ -99,17 +99,28 @@ class WikipediaSearch:
         if not text.endswith(('.', '!', '?')):
             text = text + '.'
 
-        article_url = f"https://en.wikipedia.org/wiki/{urllib.parse.quote(title.replace(' ', '_'))}"
-        return (
-            f"According to Wikipedia, {title}: {text}\n\n"
-            f"Source: {article_url}"
-        )
+        return text
 
     def _normalize_query(self, query: str) -> str:
         query_lower = query.strip().lower()
         # common query correction for fuzzy or typoed user input
         query_lower = query_lower.replace('healhty', 'healthy').replace('alchol', 'alcohol')
-        query_lower = re.sub(r"\b(healthy|health)\b\s+to\s+eat\s+([a-z]+)", r"healthy to eat \2", query_lower)
+        query_lower = re.sub(r"\b(healthy|health)\b\s+to\s+eat\s+([a-z ]+?)\??$", r"\2", query_lower)
+        query_lower = re.sub(r"^is it healthy to eat\s+([a-z ]+?)\?*$", r"\1", query_lower)
+        query_lower = re.sub(r"^is\s+([a-z ]+?)\s+healthy\?*$", r"\1", query_lower)
+        query_lower = re.sub(r"^can i\s+(eat|drink|use|take)\s+([a-z ]+?)\?*$", r"\2", query_lower)
+        query_lower = re.sub(r"^should i\s+(eat|drink|use|take)\s+([a-z ]+?)\?*$", r"\2", query_lower)
+        query_lower = re.sub(r"^is it safe to\s+(eat|drink|use|take)\s+([a-z ]+?)\?*$", r"\2", query_lower)
+
+        should_match = re.search(r"\bshould i\s+(?:drink|eat|use|take|have)\s+([a-z ]+?)\??$", query_lower)
+        if should_match:
+            item = should_match.group(1).strip()
+            return f"{item} health benefits"
+
+        can_match = re.search(r"\b(?:can i|could i|may i)\s+(?:drink|eat|use|take|have)\s+([a-z ]+?)\??$", query_lower)
+        if can_match:
+            item = can_match.group(1).strip()
+            return f"{item} health effects"
 
         match = re.search(r"what does (?:the )?name\s+([a-z'-]+)\s+mean", query_lower)
         if match:
@@ -121,14 +132,34 @@ class WikipediaSearch:
             name = match.group(1).strip()
             return f"{name} name"
 
+        inventor_match = re.search(r"\bwho invented\s+(.+?)\?*$", query_lower)
+        if inventor_match:
+            item = inventor_match.group(1).strip()
+            return f"{item} inventor"
+
+        discover_match = re.search(r"\bwho discovered\s+(.+?)\?*$", query_lower)
+        if discover_match:
+            item = discover_match.group(1).strip()
+            return f"{item} discoverer"
+
+        why_match = re.search(r"\bwhy is\s+(.+?)\?*$", query_lower)
+        if why_match:
+            item = why_match.group(1).strip()
+            return f"{item} cause"
+
+        why_does_match = re.search(r"\bwhy does\s+(.+?)\?*$", query_lower)
+        if why_does_match:
+            item = why_does_match.group(1).strip()
+            return f"{item} reason"
+
         question_match = re.match(
-            r"^(?:what is|what are|who is|who was|where is|when is|define|explain|is it|are|should|can|could|does|do)\s+(.+?)\?*$",
+            r"^(?:what is|what are|who is|who was|where is|when is|why is|why does|why can|define|explain|is it|are|should|can|could|may|does|do)\s+(.+?)\?*$",
             query_lower,
         )
         if question_match:
             return question_match.group(1).strip()
 
-        return query
+        return query_lower
 
     def _select_best_result(self, search_results: list[dict], query: str) -> dict:
         query_lower = query.lower()
@@ -148,6 +179,42 @@ class WikipediaSearch:
         query_words = set(cleaned_query.split())
         best_candidate = search_results[0]
         best_score = -1
+
+        if any(keyword in query_lower for keyword in (" inventor", " discoverer", "invention", "discovered", "invented", "cause", "reason")):
+            subject = re.sub(r"\b(inventor|discoverer|invention|discovered|invented|cause|reason)\b", "", query_lower).strip()
+            subject = re.sub(r"\b(of|the|a|an|for|about|in|on|with)\b", "", subject).strip()
+            if subject:
+                for candidate in search_results:
+                    title = candidate.get("title", "")
+                    snippet = self._clean_snippet(candidate.get("snippet", "")).lower()
+                    if subject in title.lower() and any(term in snippet for term in ("inventor", "invented", "discoverer", "discovered", "cause", "reason")):
+                        return candidate
+
+        health_subject_match = re.match(r"^([a-z0-9 ]+?)\s+(?:safety|health|nutrition|benefits|effects|risk|risks|safe|healthy)\b", query_lower)
+        if health_subject_match:
+            subject = health_subject_match.group(1).strip()
+            for candidate in search_results:
+                title = candidate.get("title", "").lower()
+                if subject in title:
+                    return candidate
+
+        subject_terms = [
+            word for word in cleaned_query.split()
+            if word not in {
+                "a", "an", "the", "of", "and", "or", "for", "to", "in", "on", "with",
+                "is", "are", "was", "were", "be", "by", "do", "does", "did", "can", "could",
+                "may", "should", "would", "will", "have", "has", "had", "this", "that", "these",
+                "those", "it", "what", "who", "why", "how", "when", "where", "if", "as", "from",
+                "into", "about", "than", "then", "most", "many", "other", "some", "health", "healthy",
+                "safety", "effects", "benefits", "nutrition", "food",
+            }
+        ]
+        primary_subject = subject_terms[0] if subject_terms else None
+        if primary_subject:
+            for candidate in search_results:
+                title = candidate.get("title", "").lower()
+                if primary_subject in title:
+                    return candidate
 
         for candidate in search_results:
             title = candidate.get("title", "").lower()

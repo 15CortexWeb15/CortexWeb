@@ -449,7 +449,6 @@ class ReasoningEngine:
             "do you think",
             "your opinion",
             "is it better",
-            "should i",
             "would you",
             "which is better",
         ]
@@ -517,7 +516,7 @@ class ReasoningEngine:
         return None
 
     def _friendly_greeting(self, request_lower: str) -> Optional[str]:
-        if any(word in request_lower for word in ("hello", "hi", "hey", "good morning", "good afternoon", "good evening")):
+        if re.search(r"\b(hello|hi|hey|good morning|good afternoon|good evening)\b", request_lower):
             return (
                 "Hey there! I'm CORTEX — your friendly assistant.\n"
                 "Talk to me like you would to a teammate, and I’ll respond with ideas, opinions, or practical answers."
@@ -587,14 +586,65 @@ class ReasoningEngine:
     def _query_knowledge(self, request: str) -> Optional[str]:
         return self.knowledge.search(request)
 
-    def _format_wikipedia_answer(self, answer: str) -> str:
-        if not answer:
-            return answer
-        return (
-            "I looked up the topic on Wikipedia and found this concise summary: \n\n"
-            f"{answer}\n\n"
-            "If you want, I can also explain it in simpler terms or give practical advice based on this information."
-        )
+    def _extract_wikipedia_summary(self, answer: str) -> str:
+        cleaned = answer.replace('\r', '').strip()
+        cleaned = re.sub(r"\s*Source:.*", '', cleaned, flags=re.IGNORECASE).strip()
+        cleaned = re.sub(r"^according to wikipedia,\s*", '', cleaned, flags=re.IGNORECASE).strip()
+        title_match = re.match(r"^[^:]{1,120}:\s*(.*)$", cleaned)
+        if title_match:
+            cleaned = title_match.group(1).strip()
+        sentences = re.split(r'(?<=[.!?])\s+', cleaned)
+        if len(sentences) > 2:
+            cleaned = ' '.join(sentences[:2]).strip()
+        if cleaned and cleaned[0].islower():
+            cleaned = cleaned[0].upper() + cleaned[1:]
+        return cleaned
+
+    def _is_positive(self, summary: str) -> bool:
+        return bool(re.search(
+            r"\b(healthy|healthful|nutritious|beneficial|good for|rich in fiber|vitamin|fiber|antioxidant|low in calories|safe|edible|recommended|support|helps|improves|widely grown|cultivated|common)\b",
+            summary,
+            re.IGNORECASE,
+        ))
+
+    def _is_negative(self, summary: str) -> bool:
+        return bool(re.search(
+            r"\b(unhealthy|harmful|toxic|poisonous|dangerous|allergic|risk|caution|avoid|not recommended|not advised|shouldn't|should not|never)\b",
+            summary,
+            re.IGNORECASE,
+        ))
+
+    def _process_knowledge_answer(self, request: str, answer: str) -> str:
+        summary = self._extract_wikipedia_summary(answer)
+        request_lower = request.lower().strip()
+        if not summary:
+            return "I found information but couldn\'t extract a concise answer; please try rephrasing your question."
+
+        yes_no_question = any(request_lower.startswith(prefix) for prefix in (
+            "should i ", "should we ", "is ", "is it ", "are ", "can i ", "can we ", "do i ", "does ", "will ", "could i ", "may i ", "may we ", "should you ", "should we "
+        ))
+        how_question = any(request_lower.startswith(prefix) for prefix in ("how to", "how do", "how can", "how does", "how could", "how should"))
+        neutral_answer = summary.rstrip('.')
+
+        if yes_no_question:
+            if self._is_positive(summary):
+                return f"Yes. {summary}"
+            if self._is_negative(summary):
+                return f"No. {summary}"
+            if request_lower.startswith("is ") or request_lower.startswith("can i ") or request_lower.startswith("can we "):
+                return f"Based on what I found, {summary}"
+            return f"{summary}"
+
+        if how_question:
+            return f"{summary}"
+
+        if request_lower.startswith(("what is", "what are", "who is", "who was", "where is", "when is", "why is", "why does", "define", "explain", "tell me about", "what does", "how many", "how much", "who invented", "when was", "what year")):
+            return f"{summary}"
+
+        if request_lower.endswith('?'):
+            return f"{summary}"
+
+        return f"{summary}"
 
     def _search_wikipedia(self, request: str) -> Optional[str]:
         if not request.strip():
@@ -698,7 +748,9 @@ class ReasoningEngine:
         if self._should_use_wikipedia(request_lower):
             knowledge_answer = self._query_knowledge(request)
         if knowledge_answer:
-            return self._format_structured_response(request, self._format_wikipedia_answer(knowledge_answer), analysis, "knowledge")
+            processed = self._process_knowledge_answer(request, knowledge_answer)
+            if processed:
+                return self._format_structured_response(request, processed, analysis, "knowledge")
 
         if self.ai.provider != "none":
             ai_prompt = self._build_ai_prompt(request, analysis)
@@ -740,8 +792,25 @@ class ReasoningEngine:
             "does",
             "is it",
             "are",
+            "should",
+            "can i",
+            "could i",
+            "may i",
+            "does it",
+            "do i",
+            "do you",
             "who invented",
             "when was",
             "what year",
+            "healthy",
+            "safe to",
+            "sushi",
+            "coffee",
         ]
-        return any(keyword in request_lower for keyword in keywords) or request_lower.startswith("wiki ")
+        if any(keyword in request_lower for keyword in keywords):
+            return True
+        if re.search(r"\bis\s+[a-z ]+\s+healthy\b", request_lower):
+            return True
+        if re.search(r"\bcan i\s+(eat|drink|use|take)\b", request_lower):
+            return True
+        return request_lower.startswith("wiki ")

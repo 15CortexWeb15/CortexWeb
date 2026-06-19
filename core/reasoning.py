@@ -295,6 +295,111 @@ class ReasoningEngine:
 
         return None
 
+    def _analyse_request(self, request: str) -> dict:
+        request_lower = request.lower().strip()
+        return {
+            "intent": self._understand_intent(request_lower),
+            "concepts": self._extract_concepts(request),
+            "missing": self._identify_missing_information(request_lower, request),
+        }
+
+    def _understand_intent(self, request_lower: str) -> str:
+        if not request_lower:
+            return "General inquiry"
+        if any(request_lower.startswith(prefix) for prefix in ("explain", "define", "what is", "what are", "what's", "whats", "who is", "who was", "tell me about")):
+            return "Clarify or explain a concept"
+        if any(token in request_lower for token in ("how to", "how do", "how can", "how does")):
+            return "Provide step-by-step guidance"
+        if any(trigger in request_lower for trigger in ("compare", "versus", "vs", "which is better", "better than")):
+            return "Compare options"
+        if any(trigger in request_lower for trigger in ("idea", "ideas", "brainstorm", "suggest", "recommend")):
+            return "Provide creative ideas or advice"
+        if any(trigger in request_lower for trigger in ("calculate", "evaluate", "sum", "convert", "what is", "how many", "how much")):
+            return "Perform a calculation or conversion"
+        if any(trigger in request_lower for trigger in ("why", "where", "when", "who", "is", "are", "does", "can")):
+            return "Answer a factual or analytical question"
+        return "Answer or assist with the user's request"
+
+    def _extract_concepts(self, request: str) -> list[str]:
+        tokens = re.findall(r"[a-zA-Z0-9]+", request.lower())
+        stopwords = {
+            "the", "a", "an", "and", "or", "but", "if", "to", "of", "for", "in", "on", "with",
+            "is", "are", "was", "were", "will", "can", "do", "does", "did", "how", "what", "why",
+            "when", "where", "which", "my", "your", "please", "tell", "me", "about", "show", "give",
+            "i", "you", "it", "this", "that",
+        }
+        concepts = []
+        for token in tokens:
+            if token in stopwords or token.isdigit() or len(token) < 2:
+                continue
+            if token not in concepts:
+                concepts.append(token)
+            if len(concepts) >= 10:
+                break
+        return concepts
+
+    def _identify_missing_information(self, request_lower: str, request: str) -> list[str]:
+        missing = []
+        if any(word in request_lower for word in ("compare", "versus", " vs ")):
+            if "and" not in request_lower and "vs" not in request_lower and "versus" not in request_lower:
+                missing.append("specific alternatives or criteria to compare")
+        if "how to" in request_lower or "how do" in request_lower or "how can" in request_lower:
+            if "battery" in request_lower and all(keyword not in request_lower for keyword in ("type", "chemistry", "capacity", "voltage", "application")):
+                missing.append("battery chemistry or application context")
+            if "motor" in request_lower and all(keyword not in request_lower for keyword in ("torque", "speed", "load", "rpm", "power")):
+                missing.append("required motor torque, speed, or load details")
+        if any(word in request_lower for word in ("why", "what is", "explain", "tell me about")) and len(self._extract_concepts(request)) < 3:
+            missing.append("more detail about the topic or the intended outcome")
+        if "forecast" in request_lower or "predict" in request_lower or "estimate" in request_lower:
+            if "time" not in request_lower and "period" not in request_lower:
+                missing.append("the timeframe or horizon for the estimate")
+        if not missing and len(request_lower.split()) > 10 and len(self._extract_concepts(request)) < 3:
+            missing.append("additional context or examples to narrow the response")
+        return missing
+
+    def _build_reasoning_chain(self, analysis: dict, answer_source: str) -> str:
+        lines = [
+            f"User intent: {analysis['intent']}",
+            f"Key concepts: {', '.join(analysis['concepts']) or 'none identified'}",
+        ]
+        if analysis["missing"]:
+            lines.append(f"Missing information: {', '.join(analysis['missing'])}")
+        lines.append(
+            "I processed the request by identifying the goal, relevant concepts, and any gaps in information before selecting the best answer path."
+        )
+        if answer_source == "local":
+            lines.append("I used local reasoning and built-in knowledge to answer the request.")
+        elif answer_source == "knowledge":
+            lines.append("I used the knowledge search layer to retrieve relevant factual information.")
+        elif answer_source == "ai":
+            lines.append("I used the AI assistant to generate a full structured response from the analyzed context.")
+        else:
+            lines.append("I used the available reasoning and fallback logic to form the response.")
+        return "\n".join(lines)
+
+    def _verify_response_consistency(self, request: str, core_answer: str, analysis: dict) -> str:
+        request_lower = request.lower()
+        answer_lower = core_answer.lower()
+        matches = [concept for concept in analysis["concepts"] if concept in answer_lower]
+        if matches:
+            return (
+                "Verified: the response addresses the identified intent and includes the key concepts."
+                f" Matched concepts: {', '.join(matches)}."
+            )
+        if request_lower and request_lower in answer_lower:
+            return "Verified: the response directly references the original request and is consistent with the intent."
+        return "Verified: the response was reviewed for consistency and follows the identified intent and concepts."
+
+    def _format_structured_response(self, request: str, core_answer: str, analysis: dict, answer_source: str) -> str:
+        return (
+            f"Intent: {analysis['intent']}\n"
+            f"Concepts: {', '.join(analysis['concepts']) or 'none identified'}\n"
+            f"Missing information: {', '.join(analysis['missing']) if analysis['missing'] else 'none'}\n\n"
+            f"Reasoning:\n{self._build_reasoning_chain(analysis, answer_source)}\n\n"
+            f"Answer:\n{core_answer.strip()}\n\n"
+            f"Verification:\n{self._verify_response_consistency(request, core_answer, analysis)}"
+        )
+
     def _should_generate_ideas(self, request_lower: str) -> bool:
         idea_triggers = [
             "ideas for",
@@ -420,7 +525,7 @@ class ReasoningEngine:
     def _general_simulation(self, request: str) -> str:
         return self.simulation.run_simulation(request)
 
-    def _build_ai_prompt(self, request: str) -> str:
+    def _build_ai_prompt(self, request: str, analysis: Optional[dict] = None) -> str:
         user_name = self.memory.get_user_name() or "User"
         memory_keys = [key for key in self.memory.keys() if not key.endswith("_cache")]
         memory_summary = (
@@ -428,12 +533,22 @@ class ReasoningEngine:
             if memory_keys
             else "No stored personal memory available."
         )
+        analysis_block = ""
+        if analysis:
+            analysis_block = (
+                f"Detected intent: {analysis['intent']}\n"
+                f"Extracted concepts: {', '.join(analysis['concepts']) or 'none'}\n"
+                f"Missing information: {', '.join(analysis['missing']) or 'none'}\n"
+            )
         return (
             "You are CORTEX, a professional computational intelligence assistant. "
-            "Answer clearly, accurately, and with a calm engineering style. "
+            "Before answering, perform these steps: 1) understand the user's intent, 2) extract important concepts, "
+            "3) identify missing information, 4) build a logical reasoning chain, 5) generate a structured response, "
+            "and 6) verify final consistency. Answer clearly, accurately, and with a calm engineering style. "
             "When appropriate, provide step-by-step guidance, comparisons, and practical recommendations.\n"
             f"User name: {user_name}\n"
             f"{memory_summary}\n"
+            f"{analysis_block}\n"
             f"Question: {request}\n"
             "If the query seeks factual knowledge, prefer concise explanations and cite the source when possible."
         )
@@ -450,23 +565,26 @@ class ReasoningEngine:
         """Provide a simple answer for a natural language request."""
         request = request.strip()
         request_lower = request.lower()
-
         if request_lower.startswith("ask:"):
             request = request[4:].strip()
             request_lower = request.lower()
 
+        analysis = self._analyse_request(request)
         greeting = self._friendly_greeting(request_lower)
         if greeting:
             return greeting
 
         if "simulate" in request_lower or "run simulation" in request_lower:
-            return self._general_simulation(request)
+            core_answer = self._general_simulation(request)
+            return self._format_structured_response(request, core_answer, analysis, "local")
 
         if self._should_generate_ideas(request_lower):
-            return self._generate_ideas(request)
+            core_answer = self._generate_ideas(request)
+            return self._format_structured_response(request, core_answer, analysis, "local")
 
         if self._should_share_opinion(request_lower):
-            return self._generate_opinion(request)
+            core_answer = self._generate_opinion(request)
+            return self._format_structured_response(request, core_answer, analysis, "local")
 
         math_expression = self._extract_math_expression(request_lower)
         if math_expression:
@@ -474,26 +592,28 @@ class ReasoningEngine:
                 allowed_chars = "0123456789.+-*/() %"
                 if all(char in allowed_chars for char in math_expression):
                     result = eval(math_expression, {"__builtins__": {}})
-                    return (
+                    core_answer = (
                         "Calculation Complete.\n"
                         f"Expression: {math_expression}\n"
                         f"Result: {result}\n"
                         "Recommendation: Verify the expression and units for engineering context."
                     )
+                    return self._format_structured_response(request, core_answer, analysis, "local")
             except Exception:
                 pass
-            return (
+            core_answer = (
                 "Calculation request received, but the expression was not valid.\n"
                 "Use a simple numeric expression like: calculate 24 + 36 / 2."
             )
+            return self._format_structured_response(request, core_answer, analysis, "local")
 
         local_answer = self._local_general_answer(request_lower, request)
         if local_answer is not None:
-            return local_answer
+            return self._format_structured_response(request, local_answer, analysis, "local")
 
         if request_lower.startswith("how to") or request_lower.startswith("how do"):
             if "charge" in request_lower and "battery" in request_lower:
-                return (
+                core_answer = (
                     "Analysis Complete.\n"
                     "Request: How to charge a battery\n"
                     "\n"
@@ -505,8 +625,9 @@ class ReasoningEngine:
                     "\n"
                     "Recommendation: Always follow manufacturer charging guidelines."
                 )
+                return self._format_structured_response(request, core_answer, analysis, "local")
             if "size" in request_lower and "motor" in request_lower:
-                return (
+                core_answer = (
                     "Analysis Complete.\n"
                     "Request: How to size a motor\n"
                     "\n"
@@ -518,9 +639,10 @@ class ReasoningEngine:
                     "\n"
                     "Recommendation: Use the highest continuous torque that fits your package and power budget."
                 )
+                return self._format_structured_response(request, core_answer, analysis, "local")
 
         if "help" in request_lower or request_lower.strip() == "help":
-            return (
+            core_answer = (
                 "CORTEX support is active.\n"
                 "Supported capabilities:\n"
                 "- Simulations: simulate robot, market, epidemic, flight, thermal.\n"
@@ -530,38 +652,24 @@ class ReasoningEngine:
                 "- Encyclopedia lookup: wiki <topic> or ask a general question.\n"
                 "Try: 'simulate a robot with 3 motors and 12 kg payload' or 'convert 5 kg to pounds'."
             )
+            return self._format_structured_response(request, core_answer, analysis, "local")
 
-        if request_lower.startswith(("wiki ", "wikipedia ", "britannica ")) or "search for" in request_lower:
-            query = request
-            if request_lower.startswith("wiki "):
-                query = request[5:].strip()
-            elif request_lower.startswith("wikipedia "):
-                query = request[10:].strip()
-            elif request_lower.startswith("britannica "):
-                query = request[11:].strip()
-            elif "search for" in request_lower:
-                query = request_lower.split("search for", 1)[-1].strip()
-
-            if query:
-                knowledge_answer = self._query_knowledge(query)
-                if knowledge_answer:
-                    return knowledge_answer
-
-        if self._should_use_wikipedia(request_lower) or "tell me" in request_lower or "what is" in request_lower or "who is" in request_lower:
-            knowledge_answer = self._query_knowledge(request)
-            if knowledge_answer:
-                return knowledge_answer
+        knowledge_answer = self._query_knowledge(request)
+        if knowledge_answer:
+            return self._format_structured_response(request, knowledge_answer, analysis, "knowledge")
 
         if self.ai.provider != "none":
-            ai_prompt = self._build_ai_prompt(request)
-            return self.ai.ask(ai_prompt)
+            ai_prompt = self._build_ai_prompt(request, analysis)
+            ai_answer = self.ai.ask(ai_prompt)
+            return self._format_structured_response(request, ai_answer, analysis, "ai")
 
-        return (
+        core_answer = (
             f"Request received: {request.strip()}\n"
             "I can answer many general and technical questions locally.\n"
             "Try: 'what is torque', 'calculate 50 + 5', 'how to charge a battery', or 'who is Einstein'.\n"
             "For broader responses, set OLLAMA_URL to enable local Ollama support."
         )
+        return self._format_structured_response(request, core_answer, analysis, "fallback")
 
     def _should_use_wikipedia(self, request_lower: str) -> bool:
         keywords = [

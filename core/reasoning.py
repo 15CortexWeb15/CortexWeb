@@ -295,6 +295,66 @@ class ReasoningEngine:
 
         return None
 
+    def _should_generate_ideas(self, request_lower: str) -> bool:
+        idea_triggers = [
+            "ideas for",
+            "give me ideas",
+            "i need ideas",
+            "brainstorm",
+            "suggest",
+            "what should i do",
+            "what would you do",
+            "if you were me",
+        ]
+        return any(trigger in request_lower for trigger in idea_triggers)
+
+    def _should_share_opinion(self, request_lower: str) -> bool:
+        opinion_triggers = [
+            "what do you think",
+            "do you think",
+            "your opinion",
+            "is it better",
+            "should i",
+            "would you",
+            "which is better",
+        ]
+        return any(trigger in request_lower for trigger in opinion_triggers)
+
+    def _generate_ideas(self, request: str) -> str:
+        topic = request.strip().rstrip("?.")
+        if not topic:
+            topic = "this challenge"
+        return (
+            f"Here are some practical ideas I would explore for {topic}:\n"
+            "1. Start with a simple version that lets you validate the core concept quickly.\n"
+            "2. Focus on what feels most useful or exciting, then build around that.\n"
+            "3. Keep a short list of potential improvements and choose one small step to move forward.\n"
+            "If you want, I can help turn one of these ideas into a concrete plan."
+        )
+
+    def _generate_opinion(self, request: str) -> str:
+        topic = request.strip().rstrip("?.")
+        if not topic:
+            topic = "the situation"
+        return (
+            f"I think {topic} is worth exploring with a practical mindset. "
+            "From my perspective, the best approach is to keep things simple at first, learn quickly, and adjust as you go.\n"
+            "One useful rule is to ask: what outcome matters most, and how can I make steady progress toward it?"
+        )
+
+    def _record_conversation(self, user_text: str, assistant_text: str) -> None:
+        self.memory.remember_conversation(user_text, assistant_text)
+
+    def _recent_conversation_summary(self) -> str:
+        history = self.memory.get_recent_conversation()
+        if not history:
+            return ""
+        lines = ["Recent context from our conversation:"]
+        for item in history:
+            lines.append(f"You said: {item['user']}")
+            lines.append(f"I replied: {item['assistant']}")
+        return "\n".join(lines)
+
     def _unit_conversion(self, request: str) -> Optional[str]:
         conversion_map = [
             (r"(\d+(?:\.\d+)?)\s*meters?\s*to\s*feet?", 3.28084, "m", "ft"),
@@ -325,15 +385,15 @@ class ReasoningEngine:
         if any(word in request_lower for word in ("hello", "hi", "hey", "good morning", "good afternoon", "good evening")):
             return (
                 "Hey there! I'm CORTEX — your friendly assistant.\n"
-                "Ask me anything or tell me what you'd like to simulate."
+                "Talk to me like you would to a teammate, and I’ll respond with ideas, opinions, or practical answers."
             )
         if "how are you" in request_lower:
             return (
-                "I'm doing great, thanks!\n"
-                "Ready to help you with questions, ideas, and simulations."
+                "I'm doing well, thanks for asking.\n"
+                "I’m here to help with questions, ideas, and decisions."
             )
         if "thank you" in request_lower or "thanks" in request_lower:
-            return "You're welcome! Let me know if you'd like help with another question or simulation."
+            return "You're welcome! If you'd like, I can also help brainstorm or share my thoughts on a topic."
         return None
 
     def _looks_like_math_expression(self, expression: str) -> bool:
@@ -401,6 +461,12 @@ class ReasoningEngine:
 
         if "simulate" in request_lower or "run simulation" in request_lower:
             return self._general_simulation(request)
+
+        if self._should_generate_ideas(request_lower):
+            return self._generate_ideas(request)
+
+        if self._should_share_opinion(request_lower):
+            return self._generate_opinion(request)
 
         math_expression = self._extract_math_expression(request_lower)
         if math_expression:
@@ -487,7 +553,8 @@ class ReasoningEngine:
                 return knowledge_answer
 
         if self.ai.provider != "none":
-            return self.ai.ask(self._build_ai_prompt(request))
+            ai_prompt = self._build_ai_prompt(request)
+            return self.ai.ask(ai_prompt)
 
         return (
             f"Request received: {request.strip()}\n"

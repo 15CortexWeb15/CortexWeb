@@ -53,6 +53,22 @@ class MemoryManager:
         """Return stored memory keys."""
         return list(self.memory.keys())
 
+    def remember_conversation(self, user_text: str, assistant_text: str) -> None:
+        """Store recent conversation turns for context."""
+        history = self.memory.get("conversation_history", [])
+        if not isinstance(history, list):
+            history = []
+        history.append({"user": user_text, "assistant": assistant_text})
+        self.memory["conversation_history"] = history[-10:]
+        self.save()
+
+    def get_recent_conversation(self, limit: int = 5) -> list[dict[str, str]]:
+        """Return the most recent conversation turns."""
+        history = self.memory.get("conversation_history", [])
+        if not isinstance(history, list):
+            return []
+        return history[-limit:]
+
     def find_user_memory(self, query: str) -> dict[str, object]:
         """Return user-facing memory entries matching a query."""
         normalized_query = query.strip().lower()

@@ -164,6 +164,7 @@ class CortexBrain:
         self.chat_logs.add_message(self.active_chat_session, user_name, message)
         response = self.reasoning.answer_request(message)
         self.chat_logs.add_message(self.active_chat_session, "CORTEX", response)
+        self.memory.remember_conversation(message, response)
         return response
 
     def _stargaze_report(self) -> str:

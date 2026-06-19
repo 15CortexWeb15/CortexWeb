@@ -53,6 +53,16 @@ class MemoryManager:
         """Return stored memory keys."""
         return list(self.memory.keys())
 
+    def find_user_memory(self, query: str) -> dict[str, object]:
+        """Return user-facing memory entries matching a query."""
+        normalized_query = query.strip().lower()
+        return {
+            key: value
+            for key, value in self.memory.items()
+            if not key.endswith("_cache")
+            and (normalized_query in key.lower() or normalized_query in str(value).lower())
+        }
+
     def get_user_name(self):
         """Return the stored user name, if any."""
         return self.memory.get("user_name")

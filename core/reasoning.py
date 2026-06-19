@@ -76,19 +76,25 @@ class ReasoningEngine:
 
     def _local_general_answer(self, request_lower: str, request: str) -> Optional[str]:
         if "remember" in request_lower and "as" in request_lower:
-            if "remember" in request_lower:
-                mirror = request_lower.replace("remember", "", 1).strip()
-                key, _, value = mirror.partition(" as ")
-                if key and value:
-                    self.memory.remember(key.strip(), value.strip())
-                    return f"Memory saved: '{key.strip()}' -> '{value.strip()}'."
+            mirror = request_lower.replace("remember", "", 1).strip()
+            key, _, value = mirror.partition(" as ")
+            if key and value:
+                self.memory.remember(key.strip(), value.strip())
+                return f"Memory saved: '{key.strip()}' -> '{value.strip()}'."
 
         if "what do you remember" in request_lower or "recall" in request_lower:
             query_key = request_lower.replace("what do you remember about", "", 1).replace("recall", "", 1).strip()
             query_key = query_key.strip(" ?.")
-            memory_value = self.memory.recall(query_key)
-            if memory_value is not None:
-                return f"Memory recall: {query_key} -> {memory_value}"
+            if not query_key:
+                return "What would you like me to recall?"
+            exact_value = self.memory.recall(query_key)
+            if exact_value is not None:
+                return f"Memory recall: {query_key} -> {exact_value}"
+            matches = self.memory.find_user_memory(query_key)
+            if matches:
+                lines = ["I found these matching memories:"]
+                lines.extend(f"- {k}: {v}" for k, v in matches.items())
+                return "\n".join(lines)
             return f"I do not have a stored memory for '{query_key}'."
 
         if "cup of tea" in request_lower or ("make" in request_lower and "tea" in request_lower):
@@ -338,23 +344,56 @@ class ReasoningEngine:
         for keyword in math_keywords:
             if request_lower.startswith(keyword):
                 expression = request_lower.replace(keyword, "", 1).strip()
+                expression = expression.replace(":", "/")
                 return expression
 
         if request_lower.startswith("what is ") or request_lower.startswith("what's ") or request_lower.startswith("whats "):
             expression = request_lower.split(" ", 2)[-1].strip()
+            expression = expression.replace(":", "/")
             if self._looks_like_math_expression(expression):
                 return expression
 
-        if self._looks_like_math_expression(request_lower):
-            return request_lower
+        if self._looks_like_math_expression(request_lower.replace(":", "/")):
+            return request_lower.replace(":", "/")
         return None
 
     def _general_simulation(self, request: str) -> str:
         return self.simulation.run_simulation(request)
 
+    def _build_ai_prompt(self, request: str) -> str:
+        user_name = self.memory.get_user_name() or "User"
+        memory_keys = [key for key in self.memory.keys() if not key.endswith("_cache")]
+        memory_summary = (
+            "Stored memory keys: " + ", ".join(memory_keys)
+            if memory_keys
+            else "No stored personal memory available."
+        )
+        return (
+            "You are CORTEX, a professional computational intelligence assistant. "
+            "Answer clearly, accurately, and with a calm engineering style. "
+            "When appropriate, provide step-by-step guidance, comparisons, and practical recommendations.\n"
+            f"User name: {user_name}\n"
+            f"{memory_summary}\n"
+            f"Question: {request}\n"
+            "If the query seeks factual knowledge, prefer concise explanations and cite the source when possible."
+        )
+
+    def _query_knowledge(self, request: str) -> Optional[str]:
+        return self.knowledge.search(request)
+
+    def _search_wikipedia(self, request: str) -> Optional[str]:
+        if not request.strip():
+            return None
+        return self.knowledge.search(request)
+
     def answer_request(self, request: str) -> str:
         """Provide a simple answer for a natural language request."""
-        request_lower = request.strip().lower()
+        request = request.strip()
+        request_lower = request.lower()
+
+        if request_lower.startswith("ask:"):
+            request = request[4:].strip()
+            request_lower = request.lower()
 
         greeting = self._friendly_greeting(request_lower)
         if greeting:
@@ -413,7 +452,6 @@ class ReasoningEngine:
                     "\n"
                     "Recommendation: Use the highest continuous torque that fits your package and power budget."
                 )
-            local_answer = None
 
         if "help" in request_lower or request_lower.strip() == "help":
             return (
@@ -427,28 +465,29 @@ class ReasoningEngine:
                 "Try: 'simulate a robot with 3 motors and 12 kg payload' or 'convert 5 kg to pounds'."
             )
 
-        if request_lower.startswith("wiki "):
-            wiki_query = request_lower.replace("wiki ", "", 1).strip()
-            if wiki_query:
-                wiki_answer = self._search_wikipedia(wiki_query)
-                if wiki_answer:
-                    return wiki_answer
-                if self.ai.provider != "none":
-                    return self.ai.ask(request.strip())
-                return (
-                    f"Wiki lookup for '{wiki_query}' did not return a helpful result.\n"
-                    "Try a more specific term or enable Ollama for broader synthesis."
-                )
+        if request_lower.startswith(("wiki ", "wikipedia ", "britannica ")) or "search for" in request_lower:
+            query = request
+            if request_lower.startswith("wiki "):
+                query = request[5:].strip()
+            elif request_lower.startswith("wikipedia "):
+                query = request[10:].strip()
+            elif request_lower.startswith("britannica "):
+                query = request[11:].strip()
+            elif "search for" in request_lower:
+                query = request_lower.split("search for", 1)[-1].strip()
 
-        if self._should_use_wikipedia(request_lower):
-            wiki_answer = self._search_wikipedia(request)
-            if wiki_answer:
-                return wiki_answer
-            if self.ai.provider != "none":
-                return self.ai.ask(request.strip())
+            if query:
+                knowledge_answer = self._query_knowledge(query)
+                if knowledge_answer:
+                    return knowledge_answer
+
+        if self._should_use_wikipedia(request_lower) or "tell me" in request_lower or "what is" in request_lower or "who is" in request_lower:
+            knowledge_answer = self._query_knowledge(request)
+            if knowledge_answer:
+                return knowledge_answer
 
         if self.ai.provider != "none":
-            return self.ai.ask(request.strip())
+            return self.ai.ask(self._build_ai_prompt(request))
 
         return (
             f"Request received: {request.strip()}\n"
@@ -457,26 +496,33 @@ class ReasoningEngine:
             "For broader responses, set OLLAMA_URL to enable local Ollama support."
         )
 
-    def _search_wikipedia(self, request: str) -> Optional[str]:
-        if not request.strip():
-            return None
-        return self.knowledge.search(request)
-
     def _should_use_wikipedia(self, request_lower: str) -> bool:
         keywords = [
             "what is",
             "what are",
+            "whats ",
+            "what's ",
             "who is",
             "who was",
             "where is",
             "when is",
             "why is",
+            "why does",
+            "why can",
             "define",
             "explain",
             "what does",
             "how many",
             "how much",
+            "how do",
+            "how can",
             "tell me about",
+            "tell me how",
+            "can you",
+            "could you",
+            "does",
+            "is it",
+            "are",
             "who invented",
             "when was",
             "what year",

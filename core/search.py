@@ -195,16 +195,130 @@ class WikipediaSearch:
             return None
 
 
+class BritannicaSearch:
+    """Search Encyclopaedia Britannica for a concise summary."""
+
+    BASE_URL = "https://www.britannica.com"
+    SEARCH_PATH = "/search?query="
+    CACHE_KEY = "britannica_cache"
+
+    def __init__(self) -> None:
+        self.memory = MemoryManager()
+        self.memory.load()
+        self.cache = self.memory.recall(self.CACHE_KEY) or {}
+
+    def search(self, query: str, offline_only: bool = False) -> Optional[str]:
+        if not query or offline_only:
+            return None
+
+        normalized_query = self._normalize_query(query)
+        cache_key = normalized_query.strip().lower()
+        if cache_key in self.cache:
+            return self.cache[cache_key]
+
+        search_url = f"{self.BASE_URL}{self.SEARCH_PATH}{urllib.parse.quote(normalized_query)}"
+        search_html = self._fetch_html(search_url)
+        if not search_html:
+            return None
+
+        article_path = self._extract_article_path(search_html)
+        if not article_path:
+            return None
+
+        article_url = f"{self.BASE_URL}{article_path}"
+        article_html = self._fetch_html(article_url)
+        if not article_html:
+            return None
+
+        summary = self._extract_article_summary(article_html)
+        if not summary:
+            return None
+
+        result = (
+            f"According to Encyclopaedia Britannica, {normalized_query.title()}: {summary}\n\n"
+            f"Source: {article_url}"
+        )
+        self._cache_query(cache_key, result)
+        return result
+
+    def _cache_query(self, query: str, result: str) -> None:
+        self.cache[query] = result
+        self.memory.remember(self.CACHE_KEY, self.cache)
+
+    def _fetch_html(self, url: str) -> Optional[str]:
+        try:
+            request = urllib.request.Request(url, headers={"User-Agent": "CORTEX/1.0"})
+            with urllib.request.urlopen(request, timeout=20) as response:
+                return response.read().decode("utf-8", errors="replace")
+        except urllib.error.URLError:
+            return None
+
+    def _extract_article_path(self, html: str) -> Optional[str]:
+        patterns = [
+            r'href="(/topic/[^"]+)"',
+            r'href="(/biography/[^"]+)"',
+            r'href="(/science/[^"]+)"',
+            r'href="(/technology/[^"]+)"',
+            r'href="(/history/[^"]+)"',
+            r'href="(/[^\"?]+)"',
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, html, re.IGNORECASE)
+            if match:
+                path = match.group(1)
+                if path.startswith("/search"):
+                    continue
+                return path
+        return None
+
+    def _extract_article_summary(self, html: str) -> Optional[str]:
+        paragraphs = re.findall(r"<p>(.*?)</p>", html, re.IGNORECASE | re.DOTALL)
+        for paragraph in paragraphs:
+            cleaned = self._clean_html(paragraph)
+            if len(cleaned) >= 120:
+                sentences = re.split(r'(?<=[.!?])\s+', cleaned)
+                summary = " ".join(sentences[:2]).strip()
+                if summary:
+                    return summary if summary.endswith(('.', '!', '?')) else f"{summary}."
+        return None
+
+    def _normalize_query(self, query: str) -> str:
+        query_lower = query.strip().lower()
+        question_match = re.match(
+            r"^(?:what is|what are|who is|who was|where is|when is|define|explain|tell me about)\s+(.+?)\?*$",
+            query_lower,
+        )
+        if question_match:
+            return question_match.group(1).strip()
+        return query
+
+    def _clean_html(self, html: str) -> str:
+        text = re.sub(r'<[^>]+>', '', html)
+        text = re.sub(r'&nbsp;|&#160;', ' ', text)
+        text = re.sub(r'\s+', ' ', text).strip()
+        return text
+
+
 class KnowledgeSearch:
     """Unified knowledge retrieval for CORTEX."""
 
     def __init__(self) -> None:
         self.wikipedia = WikipediaSearch()
+        self.britannica = BritannicaSearch()
 
     def search(self, query: str, offline_only: bool = False) -> Optional[str]:
         if not query:
             return None
+
         result = self.wikipedia.search(query, offline_only=offline_only)
         if result:
             return result
+
+        if offline_only:
+            return None
+
+        result = self.britannica.search(query, offline_only=offline_only)
+        if result:
+            return result
+
         return None

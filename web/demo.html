@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CORTEX Web Demo</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: #020617;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .container {
+      width: 100%;
+      max-width: 840px;
+      background: #0b1220;
+      border: 1px solid #1f2937;
+      border-radius: 18px;
+      padding: 32px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    }
+    h1 {
+      margin-top: 0;
+      color: #93c5fd;
+    }
+    .input-area,
+    .response-area {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid #334155;
+      background: #020617;
+      color: #e2e8f0;
+      padding: 18px;
+      font-size: 1rem;
+      resize: vertical;
+      min-height: 130px;
+      box-sizing: border-box;
+    }
+    .response-area {
+      min-height: 200px;
+      margin-top: 18px;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 18px;
+      background: #6366f1;
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .button:hover {
+      background: #4f46e5;
+    }
+    .note {
+      color: #9ca3af;
+      margin-top: 18px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>CORTEX Web Demo</h1>
+    <p class="note">Enter a question or command below, then click Send to get a response from the local CORTEX server.</p>
+    <textarea id="query" class="input-area" placeholder="Ask CORTEX something, e.g. 'what is torque' or 'search robotics'...">What is torque?</textarea>
+    <div class="actions">
+      <button id="send" class="button">Send</button>
+      <button id="clear" class="button" style="background: #1f2937;">Clear</button>
+    </div>
+    <div id="response" class="response-area">Response will appear here.</div>
+    <p class="note">Run the web demo with <code>python web/server.py</code> and open <code>http://127.0.0.1:8080/demo.html</code>.</p>
+  </div>
+  <script>
+    const queryInput = document.getElementById('query');
+    const responseDiv = document.getElementById('response');
+    const sendButton = document.getElementById('send');
+    const clearButton = document.getElementById('clear');
+
+    async function sendQuery() {
+      const query = queryInput.value.trim();
+      if (!query) {
+        responseDiv.textContent = 'Please enter a question or command.';
+        return;
+      }
+      responseDiv.textContent = 'Waiting for CORTEX...';
+      try {
+        const res = await fetch('/api/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query }),
+        });
+        if (!res.ok) {
+          throw new Error('Server error: ' + res.status);
+        }
+        const data = await res.json();
+        responseDiv.textContent = data.response || 'No response returned.';
+      } catch (error) {
+        responseDiv.textContent = 'Error: ' + error.message;
+      }
+    }
+
+    sendButton.addEventListener('click', sendQuery);
+    clearButton.addEventListener('click', () => {
+      responseDiv.textContent = '';
+      queryInput.value = '';
+      queryInput.focus();
+    });
+
+    queryInput.addEventListener('keydown', event => {
+      if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+        sendQuery();
+      }
+    });
+  </script>
+</body>
+</html>

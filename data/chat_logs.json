@@ -1,0 +1,131 @@
+{
+  "sessions": {
+    "Chat Session 1": {
+      "created_at": "2026-06-19 10:45:07",
+      "updated_at": "2026-06-19 10:45:07",
+      "messages": []
+    },
+    "Chat Session 2": {
+      "created_at": "2026-06-19 10:45:08",
+      "updated_at": "2026-06-19 10:46:24",
+      "messages": [
+        {
+          "timestamp": "2026-06-19 10:45:28",
+          "sender": "Shamil",
+          "text": "hi"
+        },
+        {
+          "timestamp": "2026-06-19 10:45:28",
+          "sender": "CORTEX",
+          "text": "Hey there! I'm CORTEX \u2014 your friendly assistant.\nAsk me anything or tell me what you'd like to simulate."
+        },
+        {
+          "timestamp": "2026-06-19 10:45:36",
+          "sender": "Shamil",
+          "text": "what does trapeziummean"
+        },
+        {
+          "timestamp": "2026-06-19 10:45:36",
+          "sender": "CORTEX",
+          "text": "I couldn't find a Wikipedia match for 'what does trapeziummean'. It may refer to an uncommon term or a very specific concept. Try asking in a different way or provide more detail."
+        },
+        {
+          "timestamp": "2026-06-19 10:45:44",
+          "sender": "Shamil",
+          "text": "what is trapezium"
+        },
+        {
+          "timestamp": "2026-06-19 10:45:45",
+          "sender": "CORTEX",
+          "text": "According to Wikipedia, Trapezium: Trapezium, plural trapeziums or trapezia, may refer to: Trapezium, in British and other forms of English, a trapezoid, a quadrilateral that has exactly one pair of parallel sides Trapezium, in North American English, an irregular quadrilateral with no sides parallel Trapezium (bivalve), a genus of molluscs in the family Trapezidae Trapezium (bone), a bone in the hand Trapezia (crab), a genus of crabs Trapezium (novel), a Japanese novel by Kazumi Takayama.\n\nSource: https://en.wikipedia.org/wiki/Trapezium"
+        },
+        {
+          "timestamp": "2026-06-19 10:45:59",
+          "sender": "Shamil",
+          "text": "what does word brave man"
+        },
+        {
+          "timestamp": "2026-06-19 10:45:59",
+          "sender": "CORTEX",
+          "text": "According to Wikipedia, What Made the Red Man Red?: \"What Made the Red Man Red?\" is a song from the 1953 Disney animated film Peter Pan with music by Sammy Fain and lyrics by Sammy Cahn, in which the Indians of the Neverland Tribe tell their story through dance and song. Some modern critics have described the sequence as offensive due to its reliance on exaggerated stereotypes.\n\nSource: https://en.wikipedia.org/wiki/What_Made_the_Red_Man_Red%3F"
+        },
+        {
+          "timestamp": "2026-06-19 10:46:09",
+          "sender": "Shamil",
+          "text": "what does word brave mean"
+        },
+        {
+          "timestamp": "2026-06-19 10:46:10",
+          "sender": "CORTEX",
+          "text": "According to Wikipedia, Captain America: Brave New World: Captain America: Brave New World is a 2025 American superhero film based on Marvel Comics featuring the character Sam Wilson / Captain America. Produced by Marvel Studios and distributed by Walt Disney Studios Motion Pictures, it is the fourth installment in the Captain America film series, a continuation of the television miniseries The Falcon and the Winter Soldier (2021), and the 35th film in the Marvel Cinematic Universe (MCU).\n\nSource: https://en.wikipedia.org/wiki/Captain_America%3A_Brave_New_World"
+        },
+        {
+          "timestamp": "2026-06-19 10:46:17",
+          "sender": "Shamil",
+          "text": "what does"
+        },
+        {
+          "timestamp": "2026-06-19 10:46:18",
+          "sender": "CORTEX",
+          "text": "According to Wikipedia, The Fox (What Does the Fox Say?): \"The Fox (What Does the Fox Say?)\" is an electronic dance novelty song and viral video by Norwegian comedy duo Ylvis. The top trending video of 2013 on YouTube, \"The Fox\" was posted on the platform on 3 September 2013, and has received over 1.1 billion views as of November 2025.\n\nSource: https://en.wikipedia.org/wiki/The_Fox_%28What_Does_the_Fox_Say%3F%29"
+        },
+        {
+          "timestamp": "2026-06-19 10:46:23",
+          "sender": "Shamil",
+          "text": "when did tv invented"
+        },
+        {
+          "timestamp": "2026-06-19 10:46:24",
+          "sender": "CORTEX",
+          "text": "According to Wikipedia, Invented tradition: Invented traditions are cultural practices that are presented or perceived as traditional, arising from people starting in the distant past, but which are relatively recent and often consciously invented by historical actors. The concept was highlighted in the 1983 book The Invention of Tradition, edited by Eric Hobsbawm and Terence Ranger.\n\nSource: https://en.wikipedia.org/wiki/Invented_tradition"
+        }
+      ]
+    },
+    "Default Chat": {
+      "created_at": "2026-06-19 11:29:13",
+      "updated_at": "2026-06-19 11:29:47",
+      "messages": [
+        {
+          "timestamp": "2026-06-19 11:29:13",
+          "sender": "User",
+          "text": "What is torque?"
+        },
+        {
+          "timestamp": "2026-06-19 11:29:13",
+          "sender": "CORTEX",
+          "text": "Definition Complete.\nTorque is a rotational force applied around an axis.\nFormula: torque = force \u00d7 distance (Nm).\nRecommendation: Use torque when evaluating motor and drivetrain performance."
+        },
+        {
+          "timestamp": "2026-06-19 11:29:22",
+          "sender": "User",
+          "text": "whast 2+2"
+        },
+        {
+          "timestamp": "2026-06-19 11:29:23",
+          "sender": "CORTEX",
+          "text": "According to Wikipedia, Vikram Gokhale: Vikram Gokhale (14 November 1945 \u2013 26 November 2022) was an Indian film, television and stage actor, noted for his roles in Marathi theatre, Hindi films and television. He was the son of the Veteran Marathi theatre and film actor, Chandrakant Gokhale.\n\nSource: https://en.wikipedia.org/wiki/Vikram_Gokhale"
+        },
+        {
+          "timestamp": "2026-06-19 11:29:34",
+          "sender": "User",
+          "text": "what is 2+2"
+        },
+        {
+          "timestamp": "2026-06-19 11:29:35",
+          "sender": "CORTEX",
+          "text": "According to Wikipedia, 2+2: 2+2 or Two plus two may refer to: Four, the result of the expression 2+2.\n\nSource: https://en.wikipedia.org/wiki/2%2B2"
+        },
+        {
+          "timestamp": "2026-06-19 11:29:46",
+          "sender": "User",
+          "text": "what is 2+5"
+        },
+        {
+          "timestamp": "2026-06-19 11:29:47",
+          "sender": "CORTEX",
+          "text": "According to Wikipedia, 2.5: 2.5,  2\u00bd or two and a half may refer to: Technology Version 2.5 or v2.5, a designation used in software versioning 2.5D, or 3/4 perspective and pseudo-3D, an attempt to render 3-dimensional images in 2-dimensions 2.5D (machining), technique used in machining to project a plane into 3rd dimension 2.5D (visual perception), effect in visual perception where the 3D environment of the observer is projected onto the 2D planes of the retinas 2.5G phone network; see 2G 2.5-millimeter band Culture Two and a Half Men, American television sitcom Hood Hop 2.5, 2009 album by J-Kwon Jackass 2.5, a 2007 direct-to-video feature; see Jackass Number Two Proposition 2\u00bd, Massachusetts statute which limits property tax increases by municipalities.\n\nSource: https://en.wikipedia.org/wiki/2.5"
+        }
+      ]
+    }
+  }
+}

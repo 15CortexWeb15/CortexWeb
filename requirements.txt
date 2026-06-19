@@ -1,0 +1,5 @@
+# CORTEX initial dependencies
+# Standard library only; no external packages required for core functionality.
+# Optional AI integration packages:
+#   pip install openai
+#   pip install google-generativeai

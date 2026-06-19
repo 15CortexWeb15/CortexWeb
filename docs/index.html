@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CORTEX GitHub Pages</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: #020617;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .container {
+      width: 100%;
+      max-width: 920px;
+      background: #0b1220;
+      border: 1px solid #1f2937;
+      border-radius: 18px;
+      padding: 32px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    }
+    h1 {
+      margin-top: 0;
+      color: #93c5fd;
+    }
+    p {
+      line-height: 1.7;
+      color: #cbd5e1;
+    }
+    .panel {
+      background: #07101d;
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      padding: 22px;
+      margin-top: 18px;
+    }
+    .panel h2 {
+      margin-top: 0;
+      color: #7dd3fc;
+    }
+    textarea,
+    .response,
+    .api-url {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid #334155;
+      background: #020617;
+      color: #e2e8f0;
+      padding: 18px;
+      font-size: 1rem;
+      resize: vertical;
+      min-height: 140px;
+      box-sizing: border-box;
+    }
+    .api-url {
+      min-height: auto;
+      height: 44px;
+      margin-top: 8px;
+    }
+    .response {
+      min-height: 220px;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .primary {
+      background: #6366f1;
+      color: #ffffff;
+    }
+    .primary:hover {
+      background: #4f46e5;
+    }
+    .secondary {
+      background: #1f2937;
+      color: #e2e8f0;
+    }
+    .secondary:hover {
+      background: #334155;
+    }
+    .note {
+      color: #9ca3af;
+      margin-top: 10px;
+    }
+    code {
+      background: #111827;
+      padding: 4px 6px;
+      border-radius: 6px;
+      color: #f8fafc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>CORTEX on GitHub Pages</h1>
+    <p>
+      This page is the static GitHub Pages frontend for CORTEX.
+      GitHub Pages cannot run Python, so the actual CORTEX engine must be hosted on a public backend.
+      Use the API URL below to connect the frontend to your deployed CORTEX backend.
+    </p>
+
+    <div class="panel">
+      <h2>Backend endpoint</h2>
+      <p>Paste your public CORTEX backend URL here. It must expose <code>/api/ask</code> and allow CORS.</p>
+      <input id="apiUrl" class="api-url" placeholder="https://your-backend.example.com" />
+      <p class="note">A GitHub Pages site can only host the frontend. The engine runs on a separate public server, which is required for the app to answer questions.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Ask CORTEX</h2>
+      <textarea id="query" placeholder="Type your question or command here...">What is torque?</textarea>
+      <div class="actions">
+        <button id="send" class="primary">Send</button>
+        <button id="clear" class="secondary">Clear</button>
+      </div>
+      <div id="response" class="response">Response will appear here.</div>
+      <p class="note">Use Ctrl+Enter to submit from the textarea.</p>
+    </div>
+
+    <div class="panel">
+      <h2>GitHub Pages setup</h2>
+      <p>To make this available on the internet via GitHub Pages:</p>
+      <ol>
+        <li>Copy this `docs/index.html` to your repository.</li>
+        <li>Enable GitHub Pages for the repo, using the <code>docs/</code> folder as the source.</li>
+        <li>Deploy `web/server.py` to a public host such as Render, Railway, or a VPS.</li>
+        <li>Set the backend URL above to the public server address.</li>
+      </ol>
+      <p class="note">Once deployed, the page can be opened from the GitHub Pages URL and used from anywhere.</p>
+    </div>
+  </div>
+
+  <script>
+    const queryInput = document.getElementById('query');
+    const apiUrlInput = document.getElementById('apiUrl');
+    const responseDiv = document.getElementById('response');
+    const sendButton = document.getElementById('send');
+    const clearButton = document.getElementById('clear');
+
+    async function sendQuery() {
+      const query = queryInput.value.trim();
+      const apiBase = apiUrlInput.value.trim().replace(/\/+$/, '');
+      if (!query) {
+        responseDiv.textContent = 'Please enter a question or command.';
+        return;
+      }
+      if (!apiBase) {
+        responseDiv.textContent = 'Enter the backend URL first.';
+        return;
+      }
+      const endpoint = apiBase + '/api/ask';
+      responseDiv.textContent = 'Waiting for CORTEX...';
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query }),
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`Server error ${res.status}: ${text}`);
+        }
+        const data = await res.json();
+        responseDiv.textContent = data.response || 'No response returned.';
+      } catch (error) {
+        responseDiv.textContent = 'Error: ' + error.message;
+      }
+    }
+
+    sendButton.addEventListener('click', sendQuery);
+    clearButton.addEventListener('click', () => {
+      responseDiv.textContent = '';
+      queryInput.value = '';
+      queryInput.focus();
+    });
+    queryInput.addEventListener('keydown', event => {
+      if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+        sendQuery();
+      }
+    });
+  </script>
+</body>
+</html>

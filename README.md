@@ -78,6 +78,8 @@ If you want broader responses, you can enable Ollama by setting:
 
 Ollama is optional; CORTEX does not require it to operate.
 
+If Ollama is configured, CORTEX will use it as a fallback when built-in local answers and Wikipedia lookup are not enough.
+
 If no command is provided, CORTEX defaults to `status`.
 
 ## Web demo

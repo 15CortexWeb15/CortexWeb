@@ -9,7 +9,7 @@ from typing import Dict, Optional
 
 from core.ai_assistant import AIAdapter
 from core.memory import MemoryManager
-from core.search import WikipediaSearch
+from core.search import KnowledgeSearch
 from core.simulation import SimulationEngine
 from engineering.robotics import RobotSimulator, RobotSpecs
 
@@ -19,7 +19,7 @@ class ReasoningEngine:
 
     def __init__(self) -> None:
         self.ai = AIAdapter()
-        self.wikipedia = WikipediaSearch()
+        self.knowledge = KnowledgeSearch()
         self.simulation = SimulationEngine()
         self.memory = MemoryManager()
         self.memory.load()
@@ -106,6 +106,48 @@ class ReasoningEngine:
                 "Recommendation: Use freshly boiled water and monitor steep time for the desired strength."
             )
 
+        if "solar energy" in request_lower:
+            return (
+                "Answer Complete.\n"
+                "Solar energy is the capture of sunlight and conversion into electricity or heat.\n"
+                "Recommendation: Use solar panels or thermal collectors for distributed clean energy systems."
+            )
+
+        if "climate change" in request_lower or "global warming" in request_lower:
+            return (
+                "Analysis Complete.\n"
+                "Climate change refers to long-term shifts in temperature and weather patterns, mostly caused by greenhouse gas emissions.\n"
+                "Recommendation: Reduce emissions, improve energy efficiency, and support renewable energy solutions."
+            )
+
+        if "photosynthesis" in request_lower:
+            return (
+                "Explanation Complete.\n"
+                "Photosynthesis is the process by which plants use sunlight, water, and carbon dioxide to create glucose and oxygen.\n"
+                "Recommendation: Consider photosynthesis as a model for sustainable energy and carbon capture systems."
+            )
+
+        if "computer" in request_lower and ("how" in request_lower or "what" in request_lower or "define" in request_lower):
+            return (
+                "Answer Complete.\n"
+                "A computer is an electronic device that processes data and executes instructions.\n"
+                "Recommendation: Use computers for automation, simulation, and data analysis."
+            )
+
+        if "programming" in request_lower or "code" in request_lower:
+            return (
+                "Answer Complete.\n"
+                "Programming is the process of writing instructions for computers to perform tasks.\n"
+                "Recommendation: Use structured logic, clear naming, and testing when developing software."
+            )
+
+        if "python" in request_lower and ("what" in request_lower or "define" in request_lower):
+            return (
+                "Answer Complete.\n"
+                "Python is a high-level programming language known for readability and broad library support.\n"
+                "Recommendation: Use Python for automation, data science, and rapid prototyping."
+            )
+
         if "why is the sky blue" in request_lower:
             return (
                 "Explanation Complete.\n"
@@ -139,6 +181,27 @@ class ReasoningEngine:
                     "Nikola Tesla was an inventor and electrical engineer who advanced alternating current systems.\n"
                     "Recommendation: Reference Tesla when considering electrical power and transmission systems."
                 )
+
+        if "machine learning" in request_lower:
+            return (
+                "Answer Complete.\n"
+                "Machine learning is a field of AI focused on training models to identify patterns from data.\n"
+                "Recommendation: Use supervised learning for labeled datasets and unsupervised learning for pattern discovery."
+            )
+
+        if "robotics" in request_lower:
+            return (
+                "Answer Complete.\n"
+                "Robotics combines mechanics, electronics, and software to build autonomous or semi-autonomous machines.\n"
+                "Recommendation: Focus on sensing, control, and power when designing robotic systems."
+            )
+
+        if "artificial intelligence" in request_lower or "ai" in request_lower:
+            return (
+                "Answer Complete.\n"
+                "Artificial intelligence enables machines to perform tasks that normally require human intelligence.\n"
+                "Recommendation: Use AI for pattern recognition, automation, and decision support, while validating results carefully."
+            )
 
         definitions = {
             "torque": (
@@ -364,10 +427,25 @@ class ReasoningEngine:
                 "Try: 'simulate a robot with 3 motors and 12 kg payload' or 'convert 5 kg to pounds'."
             )
 
+        if request_lower.startswith("wiki "):
+            wiki_query = request_lower.replace("wiki ", "", 1).strip()
+            if wiki_query:
+                wiki_answer = self._search_wikipedia(wiki_query)
+                if wiki_answer:
+                    return wiki_answer
+                if self.ai.provider != "none":
+                    return self.ai.ask(request.strip())
+                return (
+                    f"Wiki lookup for '{wiki_query}' did not return a helpful result.\n"
+                    "Try a more specific term or enable Ollama for broader synthesis."
+                )
+
         if self._should_use_wikipedia(request_lower):
             wiki_answer = self._search_wikipedia(request)
             if wiki_answer:
                 return wiki_answer
+            if self.ai.provider != "none":
+                return self.ai.ask(request.strip())
 
         if self.ai.provider != "none":
             return self.ai.ask(request.strip())
@@ -382,7 +460,7 @@ class ReasoningEngine:
     def _search_wikipedia(self, request: str) -> Optional[str]:
         if not request.strip():
             return None
-        return self.wikipedia.search(request)
+        return self.knowledge.search(request)
 
     def _should_use_wikipedia(self, request_lower: str) -> bool:
         keywords = [
@@ -398,5 +476,9 @@ class ReasoningEngine:
             "what does",
             "how many",
             "how much",
+            "tell me about",
+            "who invented",
+            "when was",
+            "what year",
         ]
-        return any(request_lower.startswith(keyword) for keyword in keywords)
+        return any(keyword in request_lower for keyword in keywords) or request_lower.startswith("wiki ")

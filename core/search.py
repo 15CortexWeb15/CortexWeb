@@ -193,3 +193,18 @@ class WikipediaSearch:
             return None
         except json.JSONDecodeError:
             return None
+
+
+class KnowledgeSearch:
+    """Unified knowledge retrieval for CORTEX."""
+
+    def __init__(self) -> None:
+        self.wikipedia = WikipediaSearch()
+
+    def search(self, query: str, offline_only: bool = False) -> Optional[str]:
+        if not query:
+            return None
+        result = self.wikipedia.search(query, offline_only=offline_only)
+        if result:
+            return result
+        return None

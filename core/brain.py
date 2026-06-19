@@ -10,7 +10,7 @@ from core.memory import MemoryManager, ChatLogManager
 from core.simulation import SimulationEngine
 from core.decision_engine import DecisionEngine
 from core.optimizer import Optimizer
-from core.search import WikipediaSearch
+from core.search import KnowledgeSearch
 from core.browser import MiniBrowser
 
 
@@ -25,7 +25,7 @@ class CortexBrain:
         self.simulation = SimulationEngine()
         self.decision_engine = DecisionEngine()
         self.optimizer = Optimizer()
-        self.wikipedia = WikipediaSearch()
+        self.wikipedia = KnowledgeSearch()
         self.browser = MiniBrowser()
         self.command_history: list[str] = []
         self.active_chat_session: str | None = None

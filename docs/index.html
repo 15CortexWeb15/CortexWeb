@@ -271,10 +271,9 @@
 
     const escapeHtml = (text) => text.replace(/[&<>"']/g, tag => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[tag]));
 
-    const renderMarkdown = (text) => {
+        const renderMarkdown = (text) => {
       const html = escapeHtml(text)
-        .replace(/```([\w-]*)
-([\s\S]*?)```/g, (_, lang, code) => `<pre><code class="language-${lang || 'plain'}">${escapeHtml(code)}</code></pre>`)
+        .replace(/```([\w-]*)\n([\s\S]*?)```/g, (_, lang, code) => `<pre><code class="language-${lang || 'plain'}">${escapeHtml(code)}</code></pre>`)
         .replace(/^###\s(.+)$/gm, '<h3>$1</h3>')
         .replace(/^##\s(.+)$/gm, '<h2>$1</h2>')
         .replace(/^#\s(.+)$/gm, '<h1>$1</h1>')
@@ -284,8 +283,7 @@
         .replace(/\*(.+?)\*/g, '<em>$1</em>')
         .replace(/`([^`]+)`/g, '<code>$1</code>')
         .replace(/\|(.+)\|/g, '<div class="table-row">$1</div>');
-      return html.replace(/
-/g, '<br />');
+      return html.replace(/\n/g, '<br />');
     };
 
     const appendMessage = ({ role, content, meta = '' }) => {

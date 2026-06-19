@@ -35,6 +35,50 @@
     "coffee safety and health effects": "Electronic cigarettes (\u201ce-cigs\u201d or \u201cvapes\u201d) can cause illness, but are far less harmful than smoking. Electronic cigarettes increase the risk of asthma and chronic obstructive pulmonary disease (COPD) compared to not using nicotine at all.",
     "apple": "An apple is the round, edible fruit of an apple tree (Malus spp.). Fruit trees of the orchard or domestic apple (Malus domestica), the most widely grown in the genus, are cultivated worldwide.",
     "sushi": "Sushi (\u3059\u3057, \u5bff\u53f8, \u9ba8, \u9b93; pronounced [s\u026f\u0255i\ua71c] or [s\u026f\ua71c\u0255i] ) is a traditional Japanese dish made with vinegared rice (\u9ba8\u98ef, sushi-meshi), typically seasoned with sugar and salt, and combined with a variety of ingredients (\u306d\u305f, neta), such as seafood, vegetables, or meat; raw seafood is the most common, although some may be cooked. While sushi has numerous styles and presentations, the current defining component is the vinegared rice, also known as shari (\u3057\u3083\u308a), or sumeshi (\u9162\u98ef).",
-    "coffee": "Coffee is a beverage brewed from roasted, ground coffee beans. Darkly colored, bitter, and slightly acidic, coffee has a stimulating effect on humans, primarily due to its caffeine content, but decaffeinated coffee is also commercially available."
-  }
+    "coffee": "Coffee is a beverage brewed from roasted, ground coffee beans. Darkly colored, bitter, and slightly acidic, coffee has a stimulating effect on humans, primarily due to its caffeine content, but decaffeinated coffee is also commercially available.",
+    "how can i build a robot": "I, Robot is a fixup collection of science fiction short stories by American writer Isaac Asimov. The stories originally appeared in the American magazines Super Science Stories and Astounding Science Fiction between 1940 and 1950.",
+    "the eiffel tower": "The Eiffel Tower (  EYE-f\u0259l; French: Tour Eiffel [tu\u0281 \u025bf\u025bl] ) is a lattice tower on the Champ de Mars in Paris, France. It is named after the engineer Gustave Eiffel, whose company designed and built the tower from 1887 to 1889."
+  },
+  "conversation_history": [
+    {
+      "user": "compare petrol and diesel engines",
+      "assistant": "A petrol engine (gasoline engine in American and Canadian English) is an internal combustion engine that runs on petrol (gasoline). Petrol engines can often be adapted to also run on fuels such as liquefied petroleum gas and ethanol blends (such as E10 and E85)."
+    },
+    {
+      "user": "convert 100 fahrenheit to celsius",
+      "assistant": "Conversion Complete.\n100.000 \u00b0F = 37.778 \u00b0C.\nRecommendation: Verify the units for your engineering context."
+    },
+    {
+      "user": "how can i build a robot",
+      "assistant": "I, Robot is a fixup collection of science fiction short stories by American writer Isaac Asimov. The stories originally appeared in the American magazines Super Science Stories and Astounding Science Fiction between 1940 and 1950."
+    },
+    {
+      "user": "where is the eiffel tower",
+      "assistant": "Tour Eiffel [tu\u0281 \u025bf\u025bl] ) is a lattice tower on the Champ de Mars in Paris, France. It is named after the engineer Gustave Eiffel, whose company designed and built the tower from 1887 to 1889."
+    },
+    {
+      "user": "where is the eiffel tower",
+      "assistant": "Tour Eiffel [tu\u0281 \u025bf\u025bl] ) is a lattice tower on the Champ de Mars in Paris, France. It is named after the engineer Gustave Eiffel, whose company designed and built the tower from 1887 to 1889."
+    },
+    {
+      "user": "how can i build a robot",
+      "assistant": "A robot is a machine, especially one programmable via a computer, capable of automatically carrying out a complex series of actions. A robot can be guided by an external or internal control device."
+    },
+    {
+      "user": "when did the first moon landing happen",
+      "assistant": "A Moon landing or lunar landing is the arrival of a crewed or robotic spacecraft on the Moon. The first human-made object to touch the Moon was Luna 2 in 1959, and the first crewed mission to land on the Moon was Apollo 11 in 1969."
+    },
+    {
+      "user": "compare petrol and diesel engines",
+      "assistant": "A petrol engine (gasoline engine in American and Canadian English) is an internal combustion engine that runs on petrol (gasoline). Petrol engines can often be adapted to also run on fuels such as liquefied petroleum gas and ethanol blends (such as E10 and E85)."
+    },
+    {
+      "user": "what does cpu mean",
+      "assistant": "Idle is a state that a computer processor is in when it is not being used by any program. Every program or task that runs on a computer system occupies a certain amount of processing time on the CPU."
+    },
+    {
+      "user": "what is the meaning of life",
+      "assistant": "The meaning of life is a question often answered through personal values, purpose, and the relationships we build. From an engineering and practical perspective, it can mean creating useful work, solving problems, and supporting others. If you want, I can help explore a concrete goal or project that feels meaningful to you."
+    }
+  ]
 }

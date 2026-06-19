@@ -126,6 +126,312 @@
           "text": "According to Wikipedia, 2.5: 2.5,  2\u00bd or two and a half may refer to: Technology Version 2.5 or v2.5, a designation used in software versioning 2.5D, or 3/4 perspective and pseudo-3D, an attempt to render 3-dimensional images in 2-dimensions 2.5D (machining), technique used in machining to project a plane into 3rd dimension 2.5D (visual perception), effect in visual perception where the 3D environment of the observer is projected onto the 2D planes of the retinas 2.5G phone network; see 2G 2.5-millimeter band Culture Two and a Half Men, American television sitcom Hood Hop 2.5, 2009 album by J-Kwon Jackass 2.5, a 2007 direct-to-video feature; see Jackass Number Two Proposition 2\u00bd, Massachusetts statute which limits property tax increases by municipalities.\n\nSource: https://en.wikipedia.org/wiki/2.5"
         }
       ]
+    },
+    "Default Chat (2)": {
+      "created_at": "2026-06-19 15:51:21",
+      "updated_at": "2026-06-19 15:51:22",
+      "messages": [
+        {
+          "timestamp": "2026-06-19 15:51:21",
+          "sender": "User",
+          "text": "what is the capital of france"
+        },
+        {
+          "timestamp": "2026-06-19 15:51:21",
+          "sender": "CORTEX",
+          "text": "The capital of France is Paris."
+        },
+        {
+          "timestamp": "2026-06-19 15:51:21",
+          "sender": "User",
+          "text": "how do i make tea"
+        },
+        {
+          "timestamp": "2026-06-19 15:51:21",
+          "sender": "CORTEX",
+          "text": "Analysis Complete.\nRequest: How to make a cup of tea\n\n1. Boil clean water.\n2. Place a tea bag or loose tea in a cup.\n3. Pour the hot water over the tea.\n4. Steep for 3 to 5 minutes, depending on tea strength.\n5. Remove the tea bag or strain the leaves.\n6. Add milk, sugar, or lemon if desired.\n\nRecommendation: Use freshly boiled water and monitor steep time for the desired strength."
+        },
+        {
+          "timestamp": "2026-06-19 15:51:21",
+          "sender": "User",
+          "text": "can you explain photosynthesis"
+        },
+        {
+          "timestamp": "2026-06-19 15:51:21",
+          "sender": "CORTEX",
+          "text": "Explanation Complete.\nPhotosynthesis is the process by which plants use sunlight, water, and carbon dioxide to create glucose and oxygen.\nRecommendation: Consider photosynthesis as a model for sustainable energy and carbon capture systems."
+        },
+        {
+          "timestamp": "2026-06-19 15:51:21",
+          "sender": "User",
+          "text": "what does cpu mean"
+        },
+        {
+          "timestamp": "2026-06-19 15:51:22",
+          "sender": "CORTEX",
+          "text": "In the x86 architecture, the CPUID instruction (identified by a CPUID opcode) is a processor supplementary instruction (its name derived from \"CPU Identification\") allowing software to discover details of the processor. It was introduced by Intel in 1993 with the launch of the Pentium and late 486 processors."
+        },
+        {
+          "timestamp": "2026-06-19 15:51:22",
+          "sender": "User",
+          "text": "who invented the telephone"
+        },
+        {
+          "timestamp": "2026-06-19 15:51:22",
+          "sender": "CORTEX",
+          "text": "The invention of the telephone was the culmination of work done by many different people, and led to an array of lawsuits relating to the conflicting patent claims made by several individuals and numerous companies. Notable people included in this process were Antonio Meucci, Philipp Reis, Elisha Gray and Alexander Graham Bell."
+        },
+        {
+          "timestamp": "2026-06-19 15:51:22",
+          "sender": "User",
+          "text": "tell me about quantum mechanics"
+        },
+        {
+          "timestamp": "2026-06-19 15:51:22",
+          "sender": "CORTEX",
+          "text": "Relational quantum mechanics (RQM) is an interpretation of quantum mechanics which treats the state of a quantum system as being relational, that is, the state is the relation between the observer and the system. This interpretation was first delineated by Carlo Rovelli in a 1994 preprint, and has since been expanded upon by a number of theorists."
+        },
+        {
+          "timestamp": "2026-06-19 15:51:22",
+          "sender": "User",
+          "text": "is sushi healthy"
+        },
+        {
+          "timestamp": "2026-06-19 15:51:22",
+          "sender": "CORTEX",
+          "text": "Yes. Sushi (\u3059\u3057, \u5bff\u53f8, \u9ba8, \u9b93; pronounced [s\u026f\u0255i\ua71c] or [s\u026f\ua71c\u0255i] ) is a traditional Japanese dish made with vinegared rice (\u9ba8\u98ef, sushi-meshi), typically seasoned with sugar and salt, and combined with a variety of ingredients (\u306d\u305f, neta), such as seafood, vegetables, or meat; raw seafood is the most common, although some may be cooked. While sushi has numerous styles and presentations, the current defining component is the vinegared rice, also known as shari (\u3057\u3083\u308a), or sumeshi (\u9162\u98ef)."
+        }
+      ]
+    },
+    "Default Chat (3)": {
+      "created_at": "2026-06-19 15:51:33",
+      "updated_at": "2026-06-19 15:51:33",
+      "messages": [
+        {
+          "timestamp": "2026-06-19 15:51:33",
+          "sender": "User",
+          "text": "is sushi healthy"
+        },
+        {
+          "timestamp": "2026-06-19 15:51:33",
+          "sender": "CORTEX",
+          "text": "Yes. Sushi (\u3059\u3057, \u5bff\u53f8, \u9ba8, \u9b93; pronounced [s\u026f\u0255i\ua71c] or [s\u026f\ua71c\u0255i] ) is a traditional Japanese dish made with vinegared rice (\u9ba8\u98ef, sushi-meshi), typically seasoned with sugar and salt, and combined with a variety of ingredients (\u306d\u305f, neta), such as seafood, vegetables, or meat; raw seafood is the most common, although some may be cooked. While sushi has numerous styles and presentations, the current defining component is the vinegared rice, also known as shari (\u3057\u3083\u308a), or sumeshi (\u9162\u98ef)."
+        }
+      ]
+    },
+    "Default Chat (4)": {
+      "created_at": "2026-06-19 15:51:53",
+      "updated_at": "2026-06-19 15:51:53",
+      "messages": [
+        {
+          "timestamp": "2026-06-19 15:51:53",
+          "sender": "User",
+          "text": "is sushi healthy"
+        },
+        {
+          "timestamp": "2026-06-19 15:51:53",
+          "sender": "CORTEX",
+          "text": "Yes. Sushi (\u3059\u3057, \u5bff\u53f8, \u9ba8, \u9b93; pronounced [s\u026f\u0255i\ua71c] or [s\u026f\ua71c\u0255i] ) is a traditional Japanese dish made with vinegared rice (\u9ba8\u98ef, sushi-meshi), typically seasoned with sugar and salt, and combined with a variety of ingredients (\u306d\u305f, neta), such as seafood, vegetables, or meat; raw seafood is the most common, although some may be cooked. While sushi has numerous styles and presentations, the current defining component is the vinegared rice, also known as shari (\u3057\u3083\u308a), or sumeshi (\u9162\u98ef)."
+        }
+      ]
+    },
+    "Default Chat (5)": {
+      "created_at": "2026-06-19 15:52:42",
+      "updated_at": "2026-06-19 15:52:46",
+      "messages": [
+        {
+          "timestamp": "2026-06-19 15:52:42",
+          "sender": "User",
+          "text": "what is the meaning of life"
+        },
+        {
+          "timestamp": "2026-06-19 15:52:42",
+          "sender": "CORTEX",
+          "text": "The meaning of life is a question often answered through personal values, purpose, and the relationships we build. From an engineering and practical perspective, it can mean creating useful work, solving problems, and supporting others. If you want, I can help explore a concrete goal or project that feels meaningful to you."
+        },
+        {
+          "timestamp": "2026-06-19 15:52:42",
+          "sender": "User",
+          "text": "what does cpu mean"
+        },
+        {
+          "timestamp": "2026-06-19 15:52:43",
+          "sender": "CORTEX",
+          "text": "Idle is a state that a computer processor is in when it is not being used by any program. Every program or task that runs on a computer system occupies a certain amount of processing time on the CPU."
+        },
+        {
+          "timestamp": "2026-06-19 15:52:43",
+          "sender": "User",
+          "text": "who invented the telephone"
+        },
+        {
+          "timestamp": "2026-06-19 15:52:43",
+          "sender": "CORTEX",
+          "text": "The invention of the telephone was the culmination of work done by many different people, and led to an array of lawsuits relating to the conflicting patent claims made by several individuals and numerous companies. Notable people included in this process were Antonio Meucci, Philipp Reis, Elisha Gray and Alexander Graham Bell."
+        },
+        {
+          "timestamp": "2026-06-19 15:52:43",
+          "sender": "User",
+          "text": "how can i build a robot"
+        },
+        {
+          "timestamp": "2026-06-19 15:52:44",
+          "sender": "CORTEX",
+          "text": "I, Robot is a fixup collection of science fiction short stories by American writer Isaac Asimov. The stories originally appeared in the American magazines Super Science Stories and Astounding Science Fiction between 1940 and 1950."
+        },
+        {
+          "timestamp": "2026-06-19 15:52:44",
+          "sender": "User",
+          "text": "where is the eiffel tower"
+        },
+        {
+          "timestamp": "2026-06-19 15:52:45",
+          "sender": "CORTEX",
+          "text": "Tour Eiffel [tu\u0281 \u025bf\u025bl] ) is a lattice tower on the Champ de Mars in Paris, France. It is named after the engineer Gustave Eiffel, whose company designed and built the tower from 1887 to 1889."
+        },
+        {
+          "timestamp": "2026-06-19 15:52:45",
+          "sender": "User",
+          "text": "when did the first moon landing happen"
+        },
+        {
+          "timestamp": "2026-06-19 15:52:45",
+          "sender": "CORTEX",
+          "text": "First Men in the Moon (also known H.G. Wells' First Men in the Moon) is a 1964 British science fiction film produced by Charles H."
+        },
+        {
+          "timestamp": "2026-06-19 15:52:45",
+          "sender": "User",
+          "text": "is sushi healthy"
+        },
+        {
+          "timestamp": "2026-06-19 15:52:45",
+          "sender": "CORTEX",
+          "text": "Yes. Sushi (\u3059\u3057, \u5bff\u53f8, \u9ba8, \u9b93; pronounced [s\u026f\u0255i\ua71c] or [s\u026f\ua71c\u0255i] ) is a traditional Japanese dish made with vinegared rice (\u9ba8\u98ef, sushi-meshi), typically seasoned with sugar and salt, and combined with a variety of ingredients (\u306d\u305f, neta), such as seafood, vegetables, or meat; raw seafood is the most common, although some may be cooked. While sushi has numerous styles and presentations, the current defining component is the vinegared rice, also known as shari (\u3057\u3083\u308a), or sumeshi (\u9162\u98ef)."
+        },
+        {
+          "timestamp": "2026-06-19 15:52:45",
+          "sender": "User",
+          "text": "tell me about artificial intelligence"
+        },
+        {
+          "timestamp": "2026-06-19 15:52:45",
+          "sender": "CORTEX",
+          "text": "Answer Complete.\nArtificial intelligence enables machines to perform tasks that normally require human intelligence.\nRecommendation: Use AI for pattern recognition, automation, and decision support, while validating results carefully."
+        },
+        {
+          "timestamp": "2026-06-19 15:52:45",
+          "sender": "User",
+          "text": "compare petrol and diesel engines"
+        },
+        {
+          "timestamp": "2026-06-19 15:52:46",
+          "sender": "CORTEX",
+          "text": "A petrol engine (gasoline engine in American and Canadian English) is an internal combustion engine that runs on petrol (gasoline). Petrol engines can often be adapted to also run on fuels such as liquefied petroleum gas and ethanol blends (such as E10 and E85)."
+        },
+        {
+          "timestamp": "2026-06-19 15:52:46",
+          "sender": "User",
+          "text": "convert 100 fahrenheit to celsius"
+        },
+        {
+          "timestamp": "2026-06-19 15:52:46",
+          "sender": "CORTEX",
+          "text": "Conversion Complete.\n100.000 \u00b0F = 37.778 \u00b0C.\nRecommendation: Verify the units for your engineering context."
+        }
+      ]
+    },
+    "Default Chat (6)": {
+      "created_at": "2026-06-19 15:55:39",
+      "updated_at": "2026-06-19 15:55:39",
+      "messages": [
+        {
+          "timestamp": "2026-06-19 15:55:39",
+          "sender": "User",
+          "text": "how can i build a robot"
+        },
+        {
+          "timestamp": "2026-06-19 15:55:39",
+          "sender": "CORTEX",
+          "text": "I, Robot is a fixup collection of science fiction short stories by American writer Isaac Asimov. The stories originally appeared in the American magazines Super Science Stories and Astounding Science Fiction between 1940 and 1950."
+        },
+        {
+          "timestamp": "2026-06-19 15:55:39",
+          "sender": "User",
+          "text": "where is the eiffel tower"
+        },
+        {
+          "timestamp": "2026-06-19 15:55:39",
+          "sender": "CORTEX",
+          "text": "Tour Eiffel [tu\u0281 \u025bf\u025bl] ) is a lattice tower on the Champ de Mars in Paris, France. It is named after the engineer Gustave Eiffel, whose company designed and built the tower from 1887 to 1889."
+        }
+      ]
+    },
+    "Default Chat (7)": {
+      "created_at": "2026-06-19 15:56:54",
+      "updated_at": "2026-06-19 15:56:58",
+      "messages": [
+        {
+          "timestamp": "2026-06-19 15:56:54",
+          "sender": "User",
+          "text": "where is the eiffel tower"
+        },
+        {
+          "timestamp": "2026-06-19 15:56:54",
+          "sender": "CORTEX",
+          "text": "Tour Eiffel [tu\u0281 \u025bf\u025bl] ) is a lattice tower on the Champ de Mars in Paris, France. It is named after the engineer Gustave Eiffel, whose company designed and built the tower from 1887 to 1889."
+        },
+        {
+          "timestamp": "2026-06-19 15:56:54",
+          "sender": "User",
+          "text": "how can i build a robot"
+        },
+        {
+          "timestamp": "2026-06-19 15:56:55",
+          "sender": "CORTEX",
+          "text": "A robot is a machine, especially one programmable via a computer, capable of automatically carrying out a complex series of actions. A robot can be guided by an external or internal control device."
+        },
+        {
+          "timestamp": "2026-06-19 15:56:55",
+          "sender": "User",
+          "text": "when did the first moon landing happen"
+        },
+        {
+          "timestamp": "2026-06-19 15:56:56",
+          "sender": "CORTEX",
+          "text": "A Moon landing or lunar landing is the arrival of a crewed or robotic spacecraft on the Moon. The first human-made object to touch the Moon was Luna 2 in 1959, and the first crewed mission to land on the Moon was Apollo 11 in 1969."
+        },
+        {
+          "timestamp": "2026-06-19 15:56:56",
+          "sender": "User",
+          "text": "compare petrol and diesel engines"
+        },
+        {
+          "timestamp": "2026-06-19 15:56:57",
+          "sender": "CORTEX",
+          "text": "A petrol engine (gasoline engine in American and Canadian English) is an internal combustion engine that runs on petrol (gasoline). Petrol engines can often be adapted to also run on fuels such as liquefied petroleum gas and ethanol blends (such as E10 and E85)."
+        },
+        {
+          "timestamp": "2026-06-19 15:56:57",
+          "sender": "User",
+          "text": "what does cpu mean"
+        },
+        {
+          "timestamp": "2026-06-19 15:56:58",
+          "sender": "CORTEX",
+          "text": "Idle is a state that a computer processor is in when it is not being used by any program. Every program or task that runs on a computer system occupies a certain amount of processing time on the CPU."
+        },
+        {
+          "timestamp": "2026-06-19 15:56:58",
+          "sender": "User",
+          "text": "what is the meaning of life"
+        },
+        {
+          "timestamp": "2026-06-19 15:56:58",
+          "sender": "CORTEX",
+          "text": "The meaning of life is a question often answered through personal values, purpose, and the relationships we build. From an engineering and practical perspective, it can mean creating useful work, solving problems, and supporting others. If you want, I can help explore a concrete goal or project that feels meaningful to you."
+        }
+      ]
     }
   }
 }

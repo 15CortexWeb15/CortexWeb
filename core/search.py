@@ -111,6 +111,24 @@ class WikipediaSearch:
         query_lower = re.sub(r"^can i\s+(eat|drink|use|take)\s+([a-z ]+?)\?*$", r"\2", query_lower)
         query_lower = re.sub(r"^should i\s+(eat|drink|use|take)\s+([a-z ]+?)\?*$", r"\2", query_lower)
         query_lower = re.sub(r"^is it safe to\s+(eat|drink|use|take)\s+([a-z ]+?)\?*$", r"\2", query_lower)
+        query_lower = re.sub(r"^what does (?:the )?(.+?) mean\?*$", r"\1 meaning", query_lower)
+        query_lower = re.sub(r"^what is the meaning of (.+?)\?*$", r"\1 meaning", query_lower)
+        query_lower = re.sub(r"^what does (?:the )?(.+?) do\?*$", r"\1", query_lower)
+        query_lower = re.sub(r"^what is the difference between (.+?) and (.+?)\?*$", r"\1 vs \2", query_lower)
+        query_lower = re.sub(r"^compare (.+?) and (.+?)\?*$", r"\1 vs \2", query_lower)
+        query_lower = re.sub(r"^what are the benefits of (.+?)\?*$", r"\1 benefits", query_lower)
+        query_lower = re.sub(r"^what are the risks of (.+?)\?*$", r"\1 risks", query_lower)
+        query_lower = re.sub(r"^what are the advantages of (.+?)\?*$", r"\1 advantages", query_lower)
+        query_lower = re.sub(r"^what are the disadvantages of (.+?)\?*$", r"\1 disadvantages", query_lower)
+        query_lower = re.sub(r"^where can i find (.+?)\?*$", r"\1", query_lower)
+        query_lower = re.sub(r"^when did (?:the )?first (.+?) happen\?*$", r"first \1", query_lower)
+        query_lower = re.sub(r"^when did (.+?)\?*$", r"\1", query_lower)
+        query_lower = re.sub(r"^how (?:can|do) i (?:build|make|create|design) (.+?)\?*$", r"\1", query_lower)
+        query_lower = re.sub(r"^how to (?:build|make|create|design) (.+?)\?*$", r"\1", query_lower)
+        query_lower = re.sub(r"^what does cpu mean\?*$", r"central processing unit", query_lower)
+        query_lower = re.sub(r"^what does gpu mean\?*$", r"graphics processing unit", query_lower)
+        query_lower = re.sub(r"^what does ram mean\?*$", r"random access memory", query_lower)
+        query_lower = re.sub(r"^what does api mean\?*$", r"application programming interface", query_lower)
 
         should_match = re.search(r"\bshould i\s+(?:drink|eat|use|take|have)\s+([a-z ]+?)\??$", query_lower)
         if should_match:
@@ -198,18 +216,28 @@ class WikipediaSearch:
                 if subject in title:
                     return candidate
 
+        stopwords = {
+            "a", "an", "the", "of", "and", "or", "for", "to", "in", "on", "with",
+            "is", "are", "was", "were", "be", "by", "do", "does", "did", "can", "could",
+            "may", "should", "would", "will", "have", "has", "had", "this", "that", "these",
+            "those", "it", "what", "who", "why", "how", "when", "where", "if", "as", "from",
+            "into", "about", "than", "then", "most", "many", "other", "some", "health", "healthy",
+            "safety", "effects", "benefits", "nutrition", "food", "how", "build", "make", "create",
+            "design", "use", "using", "meaning", "compare", "vs", "versus", "happen", "first",
+            "question", "item", "something", "someone", "things",
+        }
         subject_terms = [
             word for word in cleaned_query.split()
-            if word not in {
-                "a", "an", "the", "of", "and", "or", "for", "to", "in", "on", "with",
-                "is", "are", "was", "were", "be", "by", "do", "does", "did", "can", "could",
-                "may", "should", "would", "will", "have", "has", "had", "this", "that", "these",
-                "those", "it", "what", "who", "why", "how", "when", "where", "if", "as", "from",
-                "into", "about", "than", "then", "most", "many", "other", "some", "health", "healthy",
-                "safety", "effects", "benefits", "nutrition", "food",
-            }
+            if word not in stopwords and len(word) > 1
         ]
-        primary_subject = subject_terms[0] if subject_terms else None
+        if not subject_terms:
+            subject_terms = [word for word in cleaned_query.split() if len(word) > 1]
+
+        primary_subject = None
+        if subject_terms:
+            # Prefer the longest meaningful word as the subject for better matching.
+            primary_subject = max(subject_terms, key=len)
+
         if primary_subject:
             for candidate in search_results:
                 title = candidate.get("title", "").lower()
@@ -221,7 +249,9 @@ class WikipediaSearch:
             snippet = self._clean_snippet(candidate.get("snippet", "")).lower()
             title_words = set(re.sub(r"[^a-z0-9 ]", "", title).split())
             snippet_words = set(re.sub(r"[^a-z0-9 ]", "", snippet).split())
-            score = len(query_words & title_words) * 2 + len(query_words & snippet_words)
+            score = len(query_words & title_words) * 3 + len(query_words & snippet_words)
+            if any(term in title for term in subject_terms):
+                score += 2
             if score > best_score:
                 best_score = score
                 best_candidate = candidate

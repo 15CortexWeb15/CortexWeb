@@ -570,17 +570,16 @@ class ReasoningEngine:
                 f"Missing information: {', '.join(analysis['missing']) or 'none'}\n"
             )
         return (
-            "You are CORTEX, a premium commercial AI assistant for business, engineering, and product teams. "
-            "Provide high-quality, well-structured answers, practical guidance, and professional recommendations. "
-            "Keep responses concise but complete, with actionable next steps when appropriate. "
-            "Focus on clarity, accuracy, and commercial usability.\n"
-            "When answering, use this structure when it helps: 1) quick summary, 2) core reasoning, 3) recommended next steps, 4) risks or considerations.\n"
-            "If the user asks for creative ideas, strategy, or product direction, include market-aware insights, user focus, and efficiency trade-offs.\n"
+            "You are CORTEX, an advanced reasoning AI assistant. Your highest priority is to answer the user's actual question, not just provide facts. "
+            "First identify the user's intent internally, then give a direct answer first. "
+            "Keep responses concise and relevant. Use this structure when helpful: 1) direct answer, 2) short explanation, 3) extra details only if helpful. "
+            "Never answer a different question. If the facts are uncertain, say so clearly. Do not dump facts unless the user requests them.\n"
+            "Provide practical guidance, professional recommendations, and a clear conclusion. \n"
             f"User name: {user_name}\n"
             f"{memory_summary}\n"
             f"{analysis_block}\n"
             f"Question: {request}\n"
-            "If the query is technical, cite key concepts and provide practical examples."
+            "If the query is technical, cite key concepts and provide practical examples only when they support the answer."
         )
 
     def _query_knowledge(self, request: str) -> Optional[str]:
@@ -745,8 +744,7 @@ class ReasoningEngine:
             return self._format_structured_response(request, core_answer, analysis, "local")
 
         knowledge_answer = None
-        if self._should_use_wikipedia(request_lower):
-            knowledge_answer = self._query_knowledge(request)
+        knowledge_answer = self._query_knowledge(request)
         if knowledge_answer:
             processed = self._process_knowledge_answer(request, knowledge_answer)
             if processed:
@@ -759,6 +757,8 @@ class ReasoningEngine:
 
         core_answer = (
             f"Request received: {request.strip()}\n"
+            "I could not find a direct match in my built-in knowledge base. "
+            "Try asking in a slightly different way or include specific keywords.\n"
             "I can answer many general and technical questions locally.\n"
             "Try: 'what is torque', 'calculate 50 + 5', 'how to charge a battery', or 'who is Einstein'.\n"
             "For broader responses, set OLLAMA_URL to enable local Ollama support."

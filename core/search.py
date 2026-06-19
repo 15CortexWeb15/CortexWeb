@@ -107,6 +107,10 @@ class WikipediaSearch:
 
     def _normalize_query(self, query: str) -> str:
         query_lower = query.strip().lower()
+        # common query correction for fuzzy or typoed user input
+        query_lower = query_lower.replace('healhty', 'healthy').replace('alchol', 'alcohol')
+        query_lower = re.sub(r"\b(healthy|health)\b\s+to\s+eat\s+([a-z]+)", r"healthy to eat \2", query_lower)
+
         match = re.search(r"what does (?:the )?name\s+([a-z'-]+)\s+mean", query_lower)
         if match:
             name = match.group(1).strip()
@@ -118,7 +122,7 @@ class WikipediaSearch:
             return f"{name} name"
 
         question_match = re.match(
-            r"^(?:what is|what are|who is|who was|where is|when is|define|explain)\s+(.+?)\?*$",
+            r"^(?:what is|what are|who is|who was|where is|when is|define|explain|is it|are|should|can|could|does|do)\s+(.+?)\?*$",
             query_lower,
         )
         if question_match:

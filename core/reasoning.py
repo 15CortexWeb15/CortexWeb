@@ -587,6 +587,15 @@ class ReasoningEngine:
     def _query_knowledge(self, request: str) -> Optional[str]:
         return self.knowledge.search(request)
 
+    def _format_wikipedia_answer(self, answer: str) -> str:
+        if not answer:
+            return answer
+        return (
+            "I looked up the topic on Wikipedia and found this concise summary: \n\n"
+            f"{answer}\n\n"
+            "If you want, I can also explain it in simpler terms or give practical advice based on this information."
+        )
+
     def _search_wikipedia(self, request: str) -> Optional[str]:
         if not request.strip():
             return None
@@ -689,7 +698,7 @@ class ReasoningEngine:
         if self._should_use_wikipedia(request_lower):
             knowledge_answer = self._query_knowledge(request)
         if knowledge_answer:
-            return self._format_structured_response(request, knowledge_answer, analysis, "knowledge")
+            return self._format_structured_response(request, self._format_wikipedia_answer(knowledge_answer), analysis, "knowledge")
 
         if self.ai.provider != "none":
             ai_prompt = self._build_ai_prompt(request, analysis)

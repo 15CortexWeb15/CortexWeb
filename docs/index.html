@@ -66,17 +66,26 @@
     .brand-title p { margin: 6px 0 0; color: var(--muted); font-size: 0.95rem; line-height: 1.4; }
     .section-title { margin: 0; color: var(--muted); font-size: 0.92rem; text-transform: uppercase; letter-spacing: 0.08em; }
     .button, .chip {
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 22px;
       background: rgba(255, 255, 255, 0.08);
       color: var(--text);
-      padding: 12px 16px;
+      padding: 14px 18px;
       cursor: pointer;
-      transition: transform 0.2s ease, background 0.2s ease;
+      transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
       font-weight: 700;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(5px);
     }
-    .button:hover, .chip:hover { transform: translateY(-1px); background: rgba(255, 255, 255, 0.14); }
-    .button.secondary { background: rgba(255, 255, 255, 0.08); }
+    .button:hover, .chip:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.16);
+      box-shadow: 0 18px 34px rgba(0, 0, 0, 0.22);
+    }
+    .button.secondary {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
     .controls { display: flex; gap: 12px; flex-wrap: wrap; }
     .field { width: 100%; border: 1px solid var(--border); border-radius: 18px; background: rgba(15, 23, 42, 0.95); color: var(--text); padding: 16px; font-size: 1rem; outline: none; }
     textarea.field { min-height: 140px; resize: vertical; }
@@ -117,11 +126,9 @@
       <div>
         <p class="section-title">Settings</p>
         <div class="settings-group">
-          <label>Backend endpoint <input id="backendUrl" class="field" type="text" placeholder="https://your-backend.example.com" /></label>
+          <p style="margin:0 0 12px; color: var(--muted);">Backend is fixed to https://cortexwebbackend.onrender.com</p>
           <label class="toggle-row"><input id="ttsEnabled" type="checkbox" /> Enable text-to-speech</label>
           <label class="toggle-row"><input id="autoSpeak" type="checkbox" /> Auto-speak responses</label>
-          <button id="saveSettings" class="button">Save settings</button>
-          <button id="resetSettings" class="button secondary">Reset defaults</button>
         </div>
       </div>
       <div>
@@ -170,8 +177,7 @@
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.226/pdf.min.js"></script>
   <script>
-    const DEFAULT_BACKEND_URL = window.location.protocol.startsWith('http') && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' ? window.location.origin : 'http://127.0.0.1:8080';
-    const BACKEND_URL_KEY = 'cortex_v_backend_url';
+    const DEFAULT_BACKEND_URL = 'https://cortexwebbackend.onrender.com';
     const FONT_SIZE_KEY = 'cortex_v_font_size';
     const TTS_ENABLED_KEY = 'cortex_v_tts_enabled';
     const AUTO_SPEAK_KEY = 'cortex_v_auto_speak';
@@ -183,9 +189,6 @@
     const copyButton = document.getElementById('copy');
     const togglePanel = document.getElementById('togglePanel');
     const slidePanel = document.querySelector('.panel');
-    const backendInput = document.getElementById('backendUrl');
-    const saveSettingsButton = document.getElementById('saveSettings');
-    const resetSettingsButton = document.getElementById('resetSettings');
     const ttsEnabledCheckbox = document.getElementById('ttsEnabled');
     const autoSpeakCheckbox = document.getElementById('autoSpeak');
     const pdfInput = document.getElementById('pdfInput');
@@ -201,9 +204,8 @@
     const statusText = document.getElementById('statusText');
     const statusLast = document.getElementById('statusLast');
     const examples = ['brainstorm app ideas', 'explain torque', 'summarize a PDF', 'image description', 'compare batteries'];
-    const getBackendUrl = () => localStorage.getItem(BACKEND_URL_KEY) || DEFAULT_BACKEND_URL;
-    const getAskUrl = () => `${getBackendUrl()}/api/ask`;
-    const getFeedbackUrl = () => `${getBackendUrl()}/api/feedback`;
+    const getAskUrl = () => `${DEFAULT_BACKEND_URL}/api/ask`;
+    const getFeedbackUrl = () => `${DEFAULT_BACKEND_URL}/api/feedback`;
     const fetchWithTimeout = async (url, options = {}, timeout = 7000) => {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeout);
@@ -241,24 +243,8 @@
       });
     };
     const loadSettings = () => {
-      backendInput.value = localStorage.getItem(BACKEND_URL_KEY) || DEFAULT_BACKEND_URL;
       ttsEnabledCheckbox.checked = localStorage.getItem(TTS_ENABLED_KEY) === '1';
       autoSpeakCheckbox.checked = localStorage.getItem(AUTO_SPEAK_KEY) === '1';
-    };
-    const saveSettings = () => {
-      localStorage.setItem(BACKEND_URL_KEY, backendInput.value.trim() || DEFAULT_BACKEND_URL);
-      localStorage.setItem(TTS_ENABLED_KEY, ttsEnabledCheckbox.checked ? '1' : '0');
-      localStorage.setItem(AUTO_SPEAK_KEY, autoSpeakCheckbox.checked ? '1' : '0');
-      feedbackResult.textContent = 'Settings saved.';
-      checkBackend();
-    };
-    const resetSettings = () => {
-      localStorage.removeItem(BACKEND_URL_KEY);
-      localStorage.removeItem(TTS_ENABLED_KEY);
-      localStorage.removeItem(AUTO_SPEAK_KEY);
-      loadSettings();
-      feedbackResult.textContent = 'Settings reset.';
-      checkBackend();
     };
     const sendQuery = async () => {
       const query = queryInput.value.trim();
@@ -334,7 +320,7 @@ ${text.trim()}`;
     const checkBackend = async () => {
       statusText.textContent = 'Checking backend...';
       try {
-        const res = await fetchWithTimeout(`${getBackendUrl()}/api/status`, {}, 7000);
+        const res = await fetchWithTimeout(`${DEFAULT_BACKEND_URL}/api/status`, {}, 7000);
         if (res.ok) {
           const data = await res.json().catch(() => null);
           setStatus(true, data?.message || 'reachable');
@@ -361,8 +347,6 @@ ${text.trim()}`;
     speakButton.addEventListener('click', speakResponse);
     copyButton.addEventListener('click', copyResponse);
     togglePanel.addEventListener('click', () => slidePanel.classList.toggle('closed'));
-    saveSettingsButton.addEventListener('click', saveSettings);
-    resetSettingsButton.addEventListener('click', resetSettings);
     pdfInput.addEventListener('change', handlePdf);
     imageInput.addEventListener('change', handleImage);
     sendFeedbackButton.addEventListener('click', sendFeedback);

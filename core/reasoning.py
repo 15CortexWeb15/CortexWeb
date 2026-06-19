@@ -267,18 +267,22 @@ class ReasoningEngine:
             return "You're welcome! Let me know if you'd like help with another question or simulation."
         return None
 
+    def _looks_like_math_expression(self, expression: str) -> bool:
+        return bool(re.fullmatch(r"[0-9\.\+\-\*/\(\) %]+", expression.strip()))
+
     def _extract_math_expression(self, request_lower: str) -> str | None:
-        math_keywords = ["calculate", "what is", "what's", "whats", "evaluate"]
+        math_keywords = ["calculate", "evaluate"]
         for keyword in math_keywords:
             if request_lower.startswith(keyword):
                 expression = request_lower.replace(keyword, "", 1).strip()
                 return expression
 
-        match = re.match(r"^what\s+(.+?)\s+is$", request_lower)
-        if match:
-            return match.group(1).strip()
+        if request_lower.startswith("what is ") or request_lower.startswith("what's ") or request_lower.startswith("whats "):
+            expression = request_lower.split(" ", 2)[-1].strip()
+            if self._looks_like_math_expression(expression):
+                return expression
 
-        if re.fullmatch(r"[0-9\.\+\-\*/\(\) %]+", request_lower):
+        if self._looks_like_math_expression(request_lower):
             return request_lower
         return None
 

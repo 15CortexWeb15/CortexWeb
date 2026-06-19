@@ -3,356 +3,447 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CORTEX</title>
+  <title>CORTEX — Premium AI Assistant</title>
   <style>
     :root {
       color-scheme: dark;
-      --bg: #000000;
-      --panel: #121212;
-      --panel-soft: #1f1f1f;
+      --bg: #0F172A;
+      --surface: #111827;
+      --surface-soft: rgba(17, 24, 39, 0.85);
+      --surface-strong: #0E1324;
       --border: rgba(255, 255, 255, 0.08);
-      --text: #f8f8f8;
-      --muted: #b0b0b0;
-      --accent: #ffffff;
-      --radius: 24px;
+      --text: #F9FAFB;
+      --muted: #9CA3AF;
+      --accent: #10B981;
+      --accent-soft: rgba(16, 185, 129, 0.15);
+      --radius: 22px;
+      --shadow: 0 40px 120px rgba(0, 0, 0, 0.30);
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.22);
+      --transition: 180ms ease;
+      --max-width: 1600px;
     }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Inter, system-ui, sans-serif;
-      background: linear-gradient(180deg, #000000 0%, #121212 100%);
-      color: var(--text);
-      overflow-x: hidden;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: 280px minmax(0, 1fr);
-      gap: 18px;
-      max-width: 1600px;
-      margin: 18px auto;
-      padding: 0 18px 18px;
-    }
-    .panel, .content {
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(18px);
-    }
-    .panel {
-      display: grid;
-      gap: 18px;
-      padding: 22px;
-      min-height: calc(100vh - 54px);
-      position: sticky;
-      top: 18px;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .brand-logo {
-      width: 88px;
-      height: auto;
-      border-radius: 18px;
-      background: #000;
-      display: block;
-      object-fit: contain;
-      box-shadow: 0 12px 30px rgba(255, 255, 255, 0.08);
-    }
-    .brand-title h1 { margin: 0; font-size: 1.5rem; }
-    .brand-title p { margin: 6px 0 0; color: var(--muted); font-size: 0.95rem; line-height: 1.4; }
-    .section-title { margin: 0; color: var(--muted); font-size: 0.92rem; text-transform: uppercase; letter-spacing: 0.08em; }
-    .button, .chip {
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 22px;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text);
-      padding: 14px 18px;
-      cursor: pointer;
-      transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
-      font-weight: 700;
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.18);
-      backdrop-filter: blur(5px);
-    }
-    .button:hover, .chip:hover {
-      transform: translateY(-1px);
-      background: rgba(255, 255, 255, 0.16);
-      box-shadow: 0 18px 34px rgba(0, 0, 0, 0.22);
-    }
-    .button.secondary {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.12);
-    }
-    .controls { display: flex; gap: 12px; flex-wrap: wrap; }
-    .field { width: 100%; border: 1px solid var(--border); border-radius: 18px; background: rgba(15, 23, 42, 0.95); color: var(--text); padding: 16px; font-size: 1rem; outline: none; }
-    textarea.field { min-height: 140px; resize: vertical; }
-    .chat-header,
-    .chat-footer,
-    .chat-box { display: grid; gap: 16px; }
-    .chat-window { min-height: 540px; padding: 22px; display: grid; gap: 18px; }
-    .messages { display: grid; gap: 14px; overflow-y: auto; max-height: 520px; padding-right: 4px; }
-    .message { border-radius: 24px; padding: 18px 20px; line-height: 1.7; white-space: pre-wrap; }
-    .message.user { justify-self: end; background: rgba(255, 255, 255, 0.10); border: 1px solid rgba(255, 255, 255, 0.15); }
-    .message.assistant { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.10); }
-    .message strong { display: block; margin-bottom: 8px; }
-    .settings-group { display: grid; gap: 12px; }
-    .toggle-row { display: flex; align-items: center; gap: 10px; }
-    .file-preview { width: 100%; border-radius: 18px; max-height: 220px; object-fit: contain; border: 1px solid var(--border); display: none; }
-    .status { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.95rem; }
-    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #888888; }
-    .status-dot.online { background: #ffffff; }
-    .status-dot.offline { background: #555555; }
-    .chip-list { display: flex; flex-wrap: wrap; gap: 10px; }
-    @media (max-width: 1120px) { .layout { grid-template-columns: 1fr; } .panel { position: relative; top: 0; min-height: auto; } }
+    html, body { margin: 0; min-height: 100%; background: radial-gradient(circle at top, rgba(16, 185, 129, 0.08), transparent 38%), var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    body { overflow-x: hidden; }
+    button, input, textarea { font: inherit; }
+    img { max-width: 100%; display: block; }
+    .app-shell { min-height: 100vh; width: 100%; display: grid; place-items: center; padding: 18px; }
+    .app-frame { width: min(100%, var(--max-width)); display: grid; grid-template-columns: 300px minmax(0, 1fr) 300px; gap: 18px; }
+    .panel, .chat-panel, .aside-panel { background: var(--surface-soft); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-soft); backdrop-filter: blur(24px); }
+    .sidebar, .right-panel { display: flex; flex-direction: column; gap: 18px; padding: 22px; }
+    .sidebar { min-width: 300px; max-height: calc(100vh - 36px); overflow: hidden; }
+    .chat-panel { display: grid; grid-template-rows: auto 1fr auto; min-height: calc(100vh - 36px); overflow: hidden; }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .brand-row { display: flex; align-items: center; gap: 14px; }
+    .brand-logo { width: 46px; height: 46px; border-radius: 16px; background: linear-gradient(135deg, rgba(16,185,129,0.95), rgba(14,165,233,0.9)); display: grid; place-items: center; color: white; font-weight: 800; letter-spacing: 0.12em; box-shadow: 0 18px 40px rgba(16, 185, 129, 0.18); }
+    .brand-title h1 { margin: 0; font-size: 1.1rem; letter-spacing: 0.04em; }
+    .brand-title p { margin: 6px 0 0; color: var(--muted); font-size: 0.92rem; line-height: 1.5; }
+    .button, .control-chip { border: 1px solid var(--border); border-radius: 16px; background: rgba(255,255,255,0.04); color: var(--text); transition: transform var(--transition), background var(--transition), box-shadow var(--transition); cursor: pointer; }
+    .button { padding: 12px 18px; font-weight: 700; display: inline-flex; align-items: center; gap: 10px; }
+    .button.primary { background: linear-gradient(135deg, rgba(16,185,129,0.16), rgba(16,185,129,0.05)); color: #ECFCCB; border-color: rgba(16,185,129,0.24); box-shadow: 0 18px 40px rgba(16, 185, 129, 0.14); }
+    .button.secondary { background: rgba(255,255,255,0.05); color: var(--text); }
+    .button:hover, .control-chip:hover { transform: translateY(-1px); background: rgba(255,255,255,0.08); }
+    .button.icon-button { width: 48px; height: 48px; justify-content: center; border-radius: 16px; }
+    .button.small { padding: 10px 14px; }
+    .section-title { margin: 0 0 12px; font-size: 0.75rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+    .search-field { width: 100%; display: grid; gap: 8px; }
+    .search-field input { width: 100%; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; background: rgba(255,255,255,0.05); color: var(--text); padding: 14px 16px; outline: none; transition: border var(--transition), background var(--transition); }
+    .search-field input:focus { border-color: rgba(16,185,129,0.6); background: rgba(255,255,255,0.08); }
+    .history-list, .info-list { display: grid; gap: 12px; overflow-y: auto; padding-right: 6px; }
+    .history-list::-webkit-scrollbar, .info-list::-webkit-scrollbar { width: 6px; }
+    .history-list::-webkit-scrollbar-thumb, .info-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 999px; }
+    .chat-card, .info-card { padding: 18px; border-radius: 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); }
+    .chat-card.active { border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.08); }
+    .chat-card h3 { margin: 0 0 6px; font-size: 0.95rem; }
+    .chat-card p { margin: 0; color: var(--muted); font-size: 0.87rem; line-height: 1.55; }
+    .chat-card small { color: rgba(255,255,255,0.55); }
+    .profile-panel { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 18px; display: grid; gap: 12px; }
+    .profile-row { display: flex; align-items: center; gap: 12px; }
+    .avatar { width: 44px; height: 44px; border-radius: 16px; background: linear-gradient(135deg, rgba(16,185,129,0.8), rgba(59,130,246,0.8)); display: grid; place-items: center; color: white; font-weight: 700; }
+    .profile-meta { display: grid; gap: 4px; }
+    .profile-meta span { display: block; line-height: 1.2; }
+    .profile-meta .name { font-weight: 700; }
+    .profile-meta .role { color: var(--muted); font-size: 0.88rem; }
+    .chat-header-panel { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 22px 24px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .chat-header-panel h2 { margin: 0; font-size: 1.2rem; letter-spacing: 0.02em; }
+    .chat-header-panel p { margin: 4px 0 0; color: var(--muted); font-size: 0.95rem; }
+    .chat-status { display: inline-flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.88rem; }
+    .status-bullet { width: 10px; height: 10px; border-radius: 999px; background: var(--accent); box-shadow: 0 0 18px rgba(16,185,129,0.3); }
+    .message-area { padding: 18px 24px; display: grid; gap: 16px; overflow-y: auto; }
+    .message-area { scroll-behavior: smooth; }
+    .message-block { display: grid; gap: 10px; max-width: 760px; animation: fadeIn 220ms ease; }
+    .message-block.user { justify-self: end; align-items: end; }
+    .message-block.assistant { justify-self: start; align-items: start; }
+    .message-bubble { border-radius: 22px; padding: 18px 20px; border: 1px solid rgba(255,255,255,0.06); box-shadow: var(--shadow-soft); background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); width: fit-content; min-width: 160px; }
+    .message-block.user .message-bubble { background: linear-gradient(180deg, rgba(16,185,129,0.16), rgba(16,185,129,0.08)); border-color: rgba(16,185,129,0.24); }
+    .message-author { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted); }
+    .message-text { margin: 0; color: var(--text); line-height: 1.8; white-space: pre-wrap; font-size: 0.98rem; }
+    .message-text code, .message-text pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; }
+    .message-text pre { margin: 16px 0 0; padding: 16px; background: rgba(15,23,42,0.95); border-radius: 18px; overflow-x: auto; border: 1px solid rgba(255,255,255,0.08); }
+    .message-text code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 8px; }
+    .message-meta { display: flex; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: 0.82rem; }
+    .typing-indicator { display: inline-flex; gap: 6px; align-items: center; margin-top: 8px; }
+    .typing-dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.55); animation: pulse 1.2s infinite ease-in-out; }
+    .typing-dot:nth-child(2) { animation-delay: 0.12s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.24s; }
+    .input-panel { padding: 18px 24px 24px; border-top: 1px solid rgba(255,255,255,0.06); display: grid; gap: 12px; }
+    .input-shell { display: grid; gap: 14px; padding: 18px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 30px; backdrop-filter: blur(18px); }
+    .compose-row { display: grid; gap: 10px; }
+    .compose-row textarea { width: 100%; min-height: 56px; max-height: 220px; resize: none; border: none; outline: none; background: transparent; color: var(--text); font-size: 1rem; line-height: 1.7; padding: 0; }
+    .action-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .tool-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tool-buttons .button { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: var(--text); }
+    .tool-buttons .button:hover { background: rgba(255,255,255,0.1); }
+    .send-actions { display: inline-flex; gap: 10px; flex-wrap: wrap; }
+    .send-actions .button { min-width: 110px; }
+    .aside-panel { min-width: 300px; padding: 22px; display: grid; gap: 18px; max-height: calc(100vh - 36px); overflow-y: auto; }
+    .aside-panel h3 { margin: 0 0 12px; font-size: 1rem; }
+    .info-card { display: grid; gap: 10px; }
+    .info-item { display: flex; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 18px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+    .info-item span:first-child { color: var(--muted); }
+    .info-item span:last-child { font-weight: 700; }
+    .badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: rgba(16,185,129,0.14); color: #A7F3D0; font-size: 0.82rem; }
+    .plugin-list, .tool-list { display: grid; gap: 10px; }
+    .plugin-pill { padding: 12px 14px; border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .plugin-pill span { color: var(--muted); }
+    .footer-note { color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
+    .hidden { display: none !important; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0%, 80%, 100% { opacity: 0.35; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-2px); } }
+    @media (max-width: 1270px) { .app-frame { grid-template-columns: minmax(0, 1fr); } .sidebar, .right-panel { max-height: none; position: relative; } }
+    @media (max-width: 840px) { .app-frame { padding-bottom: 12px; } .sidebar { display: none; } .right-panel { display: none; } .chat-panel { min-height: auto; } }
+    @media (max-width: 580px) { .chat-header-panel { flex-direction: column; align-items: flex-start; } .action-row { flex-direction: column; align-items: stretch; } .send-actions { width: 100%; justify-content: stretch; } }
   </style>
 </head>
 <body>
-  <div class="layout">
-    <aside class="panel">
-      <div class="brand">
-        <img class="brand-logo" src="logo.svg" alt="CORTEX logo" />
-        <div class="brand-title">
-          <h1>CORTEX</h1>
-          <p>AI chat assistant with slide tools, file reading, and richer response structure.</p>
+  <div class="app-shell">
+    <div class="app-frame">
+      <section class="sidebar panel">
+        <div class="panel-header">
+          <div class="brand-row">
+            <div class="brand-logo">C</div>
+            <div class="brand-title">
+              <h1>CORTEX</h1>
+              <p>Premium AI workspace</p>
+            </div>
+          </div>
+          <button class="button secondary" id="newChatBtn">New</button>
         </div>
-      </div>
-      <div>
-        <p class="section-title">Quick actions</p>
-        <div class="chip-list" id="quickChips"></div>
-      </div>
-      <div>
-        <p class="section-title">Settings</p>
-        <div class="settings-group">
-          <p style="margin:0 0 12px; color: var(--muted);">Backend is fixed to https://cortexwebbackend.onrender.com</p>
-          <label class="toggle-row"><input id="ttsEnabled" type="checkbox" /> Enable text-to-speech</label>
-          <label class="toggle-row"><input id="autoSpeak" type="checkbox" /> Auto-speak responses</label>
+        <div class="search-field">
+          <label class="section-title" for="chatSearch">Search chats</label>
+          <input id="chatSearch" type="search" placeholder="Search conversations" autocomplete="off" />
         </div>
-      </div>
-      <div>
-        <p class="section-title">Uploads</p>
-        <div class="settings-group">
-          <label>Upload PDF <input id="pdfInput" class="field" type="file" accept="application/pdf" /></label>
-          <p id="pdfInfo" style="color: var(--muted); margin:0; font-size:0.95rem;">PDF text is extracted into your message.</p>
-          <label>Upload image <input id="imageInput" class="field" type="file" accept="image/*" /></label>
-          <img id="imagePreview" class="file-preview" alt="Image preview" />
-          <p id="imageInfo" style="color: var(--muted); margin:0; font-size:0.95rem;">Preview your image and ask about it.</p>
+        <div class="history-list" id="chatHistory"></div>
+        <div class="profile-panel">
+          <div class="profile-row">
+            <div class="avatar">A</div>
+            <div class="profile-meta">
+              <span class="name">Alex Morgan</span>
+              <span class="role">Cortex Pro</span>
+            </div>
+          </div>
+          <button class="button secondary" id="settingsToggle">Settings</button>
         </div>
-      </div>
-      <div>
-        <p class="section-title">Feedback</p>
-        <div class="settings-group">
-          <textarea id="feedbackText" class="field" placeholder="Tell us what should improve"></textarea>
-          <button id="sendFeedback" class="button">Send feedback</button>
-          <p id="feedbackResult" style="color: var(--muted); margin:0; font-size:0.95rem;"></p>
-        </div>
-      </div>
-    </aside>
-    <main class="content">
-      <div class="chat-window">
-        <div class="chat-header">
+      </section>
+
+      <section class="chat-panel panel">
+        <div class="chat-header-panel">
           <div>
-            <h1 style="margin:0;">Chat</h1>
-            <p style="margin:4px 0 0; color: var(--muted);">Ask Cortex anything and get structured, verified answers.</p>
+            <h2>Welcome back, Alex</h2>
+            <p>Your AI assistant is ready to help with strategy, content, code, and insights.</p>
           </div>
-          <div class="controls">
-            <button id="togglePanel" class="button secondary">Toggle tools</button>
+          <div class="chat-status"><span class="status-bullet"></span> <span id="statusText">Checking backend...</span></div>
+        </div>
+
+        <div class="message-area" id="messageArea"></div>
+
+        <div class="input-panel">
+          <div class="input-shell">
+            <div class="compose-row">
+              <textarea id="query" placeholder="Type your message..." rows="1"></textarea>
+            </div>
+            <div class="action-row">
+              <div class="tool-buttons">
+                <button class="button icon-button secondary" id="attachImage" title="Upload image">📷</button>
+                <button class="button icon-button secondary" id="attachPdf" title="Upload PDF">📄</button>
+                <button class="button icon-button secondary" id="voiceBtn" title="Voice input">🎙️</button>
+                <button class="button icon-button secondary" id="stopBtn" title="Stop generation">■</button>
+              </div>
+              <div class="send-actions">
+                <button class="button secondary" id="clearBtn">Clear</button>
+                <button class="button primary" id="sendBtn">Send</button>
+              </div>
+            </div>
+          </div>
+          <div class="footer-note">Press <strong>Enter</strong> to send, <strong>Shift + Enter</strong> for a new line.</div>
+        </div>
+      </section>
+
+      <aside class="right-panel panel">
+        <div class="info-card">
+          <h3>Model summary</h3>
+          <div class="info-item"><span>Model</span><span>GPT-Cortex 4</span></div>
+          <div class="info-item"><span>Memory</span><span>Active</span></div>
+          <div class="info-item"><span>Tokens</span><span>1,240 / 4,096</span></div>
+          <div class="info-item"><span>Latency</span><span id="responseTime">0ms</span></div>
+        </div>
+        <div class="info-card">
+          <h3>Tools & plugins</h3>
+          <div class="plugin-list">
+            <div class="plugin-pill"><span>PDF Reader</span><span>Active</span></div>
+            <div class="plugin-pill"><span>Image Vision</span><span>Active</span></div>
+            <div class="plugin-pill"><span>Memory Vault</span><span>Enabled</span></div>
           </div>
         </div>
-        <div class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">Checking backend...</span><span id="statusLast"></span></div>
-        <div id="messageList" class="messages"></div>
-        <div class="chat-footer">
-          <textarea id="query" class="field" placeholder="Type your question here..."></textarea>
-          <div class="controls">
-            <button id="send" class="button">Send</button>
-            <button id="clear" class="button secondary">Clear</button>
-            <button id="speak" class="button secondary">Speak</button>
-            <button id="copy" class="button secondary">Copy</button>
-          </div>
+        <div class="info-card">
+          <h3>Quick info</h3>
+          <div class="info-item"><span>Current plan</span><span>Premium</span></div>
+          <div class="info-item"><span>Language</span><span>English</span></div>
+          <div class="info-item"><span>Privacy</span><span>Secure</span></div>
         </div>
-      </div>
-    </main>
+      </aside>
+    </div>
   </div>
+
+  <input type="file" id="imageInput" accept="image/*" class="hidden" />
+  <input type="file" id="pdfInput" accept="application/pdf" class="hidden" />
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.226/pdf.min.js"></script>
   <script>
     const DEFAULT_BACKEND_URL = 'https://cortexwebbackend.onrender.com';
-    const FONT_SIZE_KEY = 'cortex_v_font_size';
-    const TTS_ENABLED_KEY = 'cortex_v_tts_enabled';
-    const AUTO_SPEAK_KEY = 'cortex_v_auto_speak';
     const queryInput = document.getElementById('query');
-    const messageList = document.getElementById('messageList');
-    const sendButton = document.getElementById('send');
-    const clearButton = document.getElementById('clear');
-    const speakButton = document.getElementById('speak');
-    const copyButton = document.getElementById('copy');
-    const togglePanel = document.getElementById('togglePanel');
-    const slidePanel = document.querySelector('.panel');
-    const ttsEnabledCheckbox = document.getElementById('ttsEnabled');
-    const autoSpeakCheckbox = document.getElementById('autoSpeak');
-    const pdfInput = document.getElementById('pdfInput');
-    const pdfInfo = document.getElementById('pdfInfo');
-    const imageInput = document.getElementById('imageInput');
-    const imagePreview = document.getElementById('imagePreview');
-    const imageInfo = document.getElementById('imageInfo');
-    const feedbackText = document.getElementById('feedbackText');
-    const sendFeedbackButton = document.getElementById('sendFeedback');
-    const feedbackResult = document.getElementById('feedbackResult');
-    const quickChips = document.getElementById('quickChips');
-    const statusDot = document.getElementById('statusDot');
+    const messageArea = document.getElementById('messageArea');
     const statusText = document.getElementById('statusText');
-    const statusLast = document.getElementById('statusLast');
-    const examples = ['brainstorm app ideas', 'explain torque', 'summarize a PDF', 'image description', 'compare batteries'];
-    const getAskUrl = () => `${DEFAULT_BACKEND_URL}/api/ask`;
-    const getFeedbackUrl = () => `${DEFAULT_BACKEND_URL}/api/feedback`;
-    const fetchWithTimeout = async (url, options = {}, timeout = 7000) => {
+    const responseTimeEl = document.getElementById('responseTime');
+    const chatHistory = document.getElementById('chatHistory');
+    const chatSearch = document.getElementById('chatSearch');
+    const newChatBtn = document.getElementById('newChatBtn');
+    const settingsToggle = document.getElementById('settingsToggle');
+    const sendBtn = document.getElementById('sendBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const attachImage = document.getElementById('attachImage');
+    const attachPdf = document.getElementById('attachPdf');
+    const voiceBtn = document.getElementById('voiceBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const imageInput = document.getElementById('imageInput');
+    const pdfInput = document.getElementById('pdfInput');
+
+    let currentAbort = null;
+    let chatItems = [
+      { id: 1, title: 'Research notes', preview: 'Review product roadmap for Q3 launch', time: '2h ago', active: true },
+      { id: 2, title: 'Product brief', preview: 'Summarize the latest release goals', time: 'Yesterday', active: false },
+      { id: 3, title: 'Marketing copy', preview: 'Create a premium landing page hero', time: '2 days ago', active: false }
+    ];
+
+    const createElement = (tag, attrs = {}, content = '') => {
+      const el = document.createElement(tag);
+      Object.entries(attrs).forEach(([key, value]) => {
+        if (key === 'class') el.className = value;
+        else if (key === 'text') el.textContent = value;
+        else if (key === 'html') el.innerHTML = value;
+        else el.setAttribute(key, value);
+      });
+      if (content) el.textContent = content;
+      return el;
+    };
+
+    const renderChatHistory = () => {
+      chatHistory.innerHTML = '';
+      chatItems.forEach(item => {
+        const card = createElement('button', { class: `chat-card${item.active ? ' active' : ''}`, type: 'button' });
+        card.innerHTML = `<h3>${item.title}</h3><p>${item.preview}</p><small>${item.time}</small>`;
+        card.addEventListener('click', () => {
+          chatItems = chatItems.map(chat => ({ ...chat, active: chat.id === item.id }));
+          renderChatHistory();
+          addSystemMessage(`Opened conversation: ${item.title}`);
+        });
+        chatHistory.appendChild(card);
+      });
+    };
+
+    const fetchWithTimeout = async (url, options = {}, timeout = 8000) => {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeout);
+      const id = setTimeout(() => controller.abort(), timeout);
       try {
         return await fetch(url, { ...options, signal: controller.signal });
-      } finally {
-        clearTimeout(timer);
-      }
+      } finally { clearTimeout(id); }
     };
-    const setStatus = (online, message = '') => {
-      statusDot.classList.toggle('online', online);
-      statusDot.classList.toggle('offline', !online);
-      statusText.textContent = online ? 'Backend connected' : 'Backend offline';
-      statusLast.textContent = message ? `(${message}) ${new Date().toLocaleTimeString()}` : `Last checked: ${new Date().toLocaleTimeString()}`;
-    };
-    const addMessage = (role, text) => {
-      const el = document.createElement('div');
-      el.className = `message ${role}`;
-      el.innerHTML = `<strong>${role === 'user' ? 'You' : 'CORTEX'}</strong>${text}`;
-      messageList.appendChild(el);
-      messageList.scrollTop = messageList.scrollHeight;
-    };
-    const speakResponse = () => {
-      if (!ttsEnabledCheckbox.checked || !window.speechSynthesis) return;
-      const last = Array.from(messageList.querySelectorAll('.message.assistant')).pop();
-      if (!last) return;
-      const utterance = new SpeechSynthesisUtterance(last.textContent.replace('CORTEX', '').trim());
-      window.speechSynthesis.speak(utterance);
-    };
-    const copyResponse = () => {
-      const last = Array.from(messageList.querySelectorAll('.message.assistant')).pop();
-      if (!last) return;
-      navigator.clipboard.writeText(last.textContent.replace('CORTEX', '').trim()).then(() => {
-        feedbackResult.textContent = 'Reply copied to clipboard.';
-      });
-    };
-    const loadSettings = () => {
-      ttsEnabledCheckbox.checked = localStorage.getItem(TTS_ENABLED_KEY) === '1';
-      autoSpeakCheckbox.checked = localStorage.getItem(AUTO_SPEAK_KEY) === '1';
-    };
-    const sendQuery = async () => {
-      const query = queryInput.value.trim();
-      if (!query) return;
-      addMessage('user', query);
-      queryInput.value = '';
-      addMessage('assistant', 'Processing your request...');
-      try {
-        const res = await fetch(getAskUrl(), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query }),
-        });
-        const data = await res.json();
-        const assistant = Array.from(messageList.querySelectorAll('.message.assistant')).pop();
-        if (assistant) assistant.innerHTML = `<strong>CORTEX</strong>${data.response || 'No response.'}`;
-        if (autoSpeakCheckbox.checked) speakResponse();
-      } catch (err) {
-        const assistant = Array.from(messageList.querySelectorAll('.message.assistant')).pop();
-        if (assistant) assistant.innerHTML = `<strong>CORTEX</strong>Error: ${err.message}`;
-      }
-    };
-    const handlePdf = async (event) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-      pdfInfo.textContent = `Loading ${file.name}...`;
-      const data = await file.arrayBuffer();
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.226/pdf.worker.min.js';
-      const pdf = await pdfjsLib.getDocument({ data }).promise;
-      let text = '';
-      for (let i = 1; i <= Math.min(2, pdf.numPages); i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        text += content.items.map(item => item.str).join(' ') + '
 
-';
-      }
-      queryInput.value += `
-[PDF ${file.name}]
-${text.trim()}`;
-      pdfInfo.textContent = `PDF text loaded into the prompt.`;
+    const escapeHtml = (text) => text.replace(/[&<>"']/g, tag => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[tag]));
+
+    const renderMarkdown = (text) => {
+      const html = escapeHtml(text)
+        .replace(/```([\w-]*)
+([\s\S]*?)```/g, (_, lang, code) => `<pre><code class="language-${lang || 'plain'}">${escapeHtml(code)}</code></pre>`)
+        .replace(/^###\s(.+)$/gm, '<h3>$1</h3>')
+        .replace(/^##\s(.+)$/gm, '<h2>$1</h2>')
+        .replace(/^#\s(.+)$/gm, '<h1>$1</h1>')
+        .replace(/^\*\s(.+)$/gm, '<li>$1</li>')
+        .replace(/^\-\s(.+)$/gm, '<li>$1</li>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\|(.+)\|/g, '<div class="table-row">$1</div>');
+      return html.replace(/
+/g, '<br />');
     };
-    const handleImage = (event) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        imagePreview.src = reader.result;
-        imagePreview.style.display = 'block';
-        imageInfo.textContent = `Uploaded ${file.name}. Ask about the image above.`;
-        queryInput.value += `
-[Image ${file.name}]`;
-      };
-      reader.readAsDataURL(file);
+
+    const appendMessage = ({ role, content, meta = '' }) => {
+      const messageBlock = createElement('div', { class: `message-block ${role}` });
+      const author = createElement('div', { class: 'message-author', text: role === 'user' ? 'You' : 'CORTEX' });
+      const bubble = createElement('div', { class: 'message-bubble' });
+      const messageText = createElement('div', { class: 'message-text' });
+      messageText.innerHTML = renderMarkdown(content);
+      const metaRow = createElement('div', { class: 'message-meta', html: `<span>${meta}</span><button class="button small secondary" type="button">Copy</button>` });
+      bubble.appendChild(messageText);
+      bubble.appendChild(metaRow);
+      messageBlock.append(author, bubble);
+      messageArea.appendChild(messageBlock);
+      messageArea.scrollTop = messageArea.scrollHeight;
+      messageBlock.querySelector('button').addEventListener('click', () => {
+        navigator.clipboard.writeText(content);
+      });
+      return messageBlock;
     };
-    const sendFeedback = async () => {
-      const message = feedbackText.value.trim();
-      if (!message) return feedbackResult.textContent = 'Enter feedback first.';
-      feedbackResult.textContent = 'Sending feedback...';
+
+    const addSystemMessage = (text) => {
+      appendMessage({ role: 'assistant', content: text, meta: 'System update' });
+    };
+
+    const showTyping = () => {
+      const typingBlock = createElement('div', { class: 'message-block assistant typing-block' });
+      typingBlock.innerHTML = `<div class="message-author">CORTEX</div><div class="message-bubble"><div class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div></div>`;
+      messageArea.appendChild(typingBlock);
+      messageArea.scrollTop = messageArea.scrollHeight;
+      return typingBlock;
+    };
+
+    const sendRequest = async (message) => {
+      if (currentAbort) currentAbort.abort();
+      currentAbort = new AbortController();
+      const start = performance.now();
+      const typingNode = showTyping();
       try {
-        const res = await fetch(getFeedbackUrl(), {
+        const response = await fetchWithTimeout(`${DEFAULT_BACKEND_URL}/api/ask`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message, email: 'anonymous@cortex.local' }),
-        });
-        const data = await res.json();
-        feedbackResult.textContent = data?.success ? 'Feedback sent.' : 'Feedback failed.';
-        feedbackText.value = '';
+          body: JSON.stringify({ query: message }),
+          signal: currentAbort.signal
+        }, 10000);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        typingNode.remove();
+        appendMessage({ role: 'assistant', content: data.response || 'No response provided.', meta: `Response ready • ${Math.round(performance.now() - start)}ms` });
+        responseTimeEl.textContent = `${Math.round(performance.now() - start)}ms`;
+        statusText.textContent = 'Connected';
       } catch (error) {
-        feedbackResult.textContent = `Error sending feedback: ${error.message}`;
+        typingNode.remove();
+        appendMessage({ role: 'assistant', content: `Error: ${error.message}`, meta: 'Failed' });
+        statusText.textContent = 'Offline';
+      } finally {
+        currentAbort = null;
       }
     };
+
+    const sendMessage = () => {
+      const text = queryInput.value.trim();
+      if (!text) return;
+      appendMessage({ role: 'user', content: text, meta: new Date().toLocaleTimeString() });
+      queryInput.value = '';
+      queryInput.style.height = 'auto';
+      sendRequest(text);
+    };
+
     const checkBackend = async () => {
-      statusText.textContent = 'Checking backend...';
       try {
-        const res = await fetchWithTimeout(`${DEFAULT_BACKEND_URL}/api/status`, {}, 7000);
-        if (res.ok) {
-          const data = await res.json().catch(() => null);
-          setStatus(true, data?.message || 'reachable');
+        const result = await fetchWithTimeout(`${DEFAULT_BACKEND_URL}/api/status`, {}, 7000);
+        if (result.ok) {
+          statusText.textContent = 'Backend online';
         } else {
-          setStatus(false, `HTTP ${res.status}`);
+          statusText.textContent = `Offline (${result.status})`;
         }
-      } catch (err) {
-        const reason = err.name === 'AbortError' ? 'timeout' : err.message;
-        setStatus(false, reason || 'unreachable');
+      } catch {
+        statusText.textContent = 'Backend unreachable';
       }
     };
-    const buildChips = () => {
-      examples.forEach(example => {
-        const chip = document.createElement('button');
-        chip.type = 'button';
-        chip.className = 'chip';
-        chip.textContent = example;
-        chip.addEventListener('click', () => { queryInput.value = example; queryInput.focus(); });
-        quickChips.appendChild(chip);
+
+    const autoResize = () => {
+      queryInput.style.height = 'auto';
+      queryInput.style.height = `${Math.min(queryInput.scrollHeight, 220)}px`;
+    };
+
+    const handleImageUpload = () => imageInput.click();
+    const handlePdfUpload = () => pdfInput.click();
+
+    const renderFilePreview = (type, name, dataUrl) => {
+      appendMessage({ role: 'assistant', content: `**Uploaded ${type}:** ${name}` });
+      if (type === 'Image') {
+        const preview = createElement('img', { src: dataUrl, alt: name });
+        const card = createElement('div', { class: 'message-bubble' });
+        card.appendChild(preview);
+        const messageBlock = createElement('div', { class: 'message-block assistant' });
+        messageBlock.appendChild(card);
+        messageArea.appendChild(messageBlock);
+        messageArea.scrollTop = messageArea.scrollHeight;
+      }
+    };
+
+    const initListeners = () => {
+      sendBtn.addEventListener('click', sendMessage);
+      clearBtn.addEventListener('click', () => { queryInput.value = ''; autoResize(); });
+      attachImage.addEventListener('click', handleImageUpload);
+      attachPdf.addEventListener('click', handlePdfUpload);
+      voiceBtn.addEventListener('click', () => addSystemMessage('Voice input is available in the next release.'));
+      stopBtn.addEventListener('click', () => { if (currentAbort) currentAbort.abort(); });
+      newChatBtn.addEventListener('click', () => addSystemMessage('Started a new chat session.'));
+      settingsToggle.addEventListener('click', () => addSystemMessage('Settings panel will open here.'));
+      chatSearch.addEventListener('input', () => {
+        const query = chatSearch.value.toLowerCase();
+        const filtered = chatItems.filter(item => item.title.toLowerCase().includes(query) || item.preview.toLowerCase().includes(query));
+        chatHistory.innerHTML = '';
+        filtered.forEach(item => {
+          const card = createElement('button', { class: `chat-card${item.active ? ' active' : ''}`, type: 'button' });
+          card.innerHTML = `<h3>${item.title}</h3><p>${item.preview}</p><small>${item.time}</small>`;
+          card.addEventListener('click', () => {
+            chatItems = chatItems.map(chat => ({ ...chat, active: chat.id === item.id }));
+            renderChatHistory();
+          });
+          chatHistory.appendChild(card);
+        });
+      });
+      queryInput.addEventListener('input', autoResize);
+      queryInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          sendMessage();
+        }
+      });
+      imageInput.addEventListener('change', async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => renderFilePreview('Image', file.name, reader.result);
+        reader.readAsDataURL(file);
+        event.target.value = '';
+      });
+      pdfInput.addEventListener('change', async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        appendMessage({ role: 'assistant', content: `**Uploaded PDF:** ${file.name}` });
+        const previewWrapper = createElement('div', { class: 'message-bubble' });
+        const previewFrame = createElement('iframe', { src: url, style: 'width:100%;min-height:220px;border-radius:18px;border:0;' });
+        previewWrapper.appendChild(previewFrame);
+        const messageBlock = createElement('div', { class: 'message-block assistant' });
+        messageBlock.appendChild(previewWrapper);
+        messageArea.appendChild(messageBlock);
+        messageArea.scrollTop = messageArea.scrollHeight;
+        event.target.value = '';
       });
     };
-    sendButton.addEventListener('click', sendQuery);
-    clearButton.addEventListener('click', () => { queryInput.value = ''; });
-    speakButton.addEventListener('click', speakResponse);
-    copyButton.addEventListener('click', copyResponse);
-    togglePanel.addEventListener('click', () => slidePanel.classList.toggle('closed'));
-    pdfInput.addEventListener('change', handlePdf);
-    imageInput.addEventListener('change', handleImage);
-    sendFeedbackButton.addEventListener('click', sendFeedback);
-    queryInput.addEventListener('keydown', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendQuery(); } });
-    loadSettings();
-    buildChips();
+
+    renderChatHistory();
+    initListeners();
     checkBackend();
     setInterval(checkBackend, 15000);
   </script>

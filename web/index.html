@@ -227,6 +227,51 @@
     .history-item:hover {
       background: rgba(59, 130, 246, 0.14);
     }
+    .response-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .panel {
+      padding: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .panel-title {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .panel-note {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-top: 10px;
+      line-height: 1.4;
+    }
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    .file-preview {
+      width: 100%;
+      max-height: 160px;
+      object-fit: contain;
+      display: none;
+      margin-top: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
     .footer {
       padding: 18px 30px 24px;
       border-top: 1px solid rgba(148, 163, 184, 0.08);
@@ -235,6 +280,11 @@
       background: rgba(255, 255, 255, 0.02);
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 1024px) {
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+    }
     @media (max-width: 640px) {
       header {
         flex-direction: column;
@@ -278,6 +328,52 @@
           </div>
         </div>
         <div id="response" class="field" style="min-height: 170px;">The answer will appear here after submission.</div>
+        <div class="response-actions">
+          <button id="speak" class="secondary">Speak Response</button>
+          <button id="copy" class="secondary">Copy Response</button>
+        </div>
+        <div class="feature-grid">
+          <div class="panel settings-panel">
+            <p class="panel-title">Settings</p>
+            <label>
+              Backend endpoint
+              <input id="backendUrl" class="field" type="text" placeholder="https://your-backend.example.com" />
+            </label>
+            <label>
+              Font size
+              <input id="fontSize" type="range" min="14" max="22" step="1" />
+            </label>
+            <label class="toggle-row">
+              <input id="ttsEnabled" type="checkbox" /> Enable text-to-speech
+            </label>
+            <label class="toggle-row">
+              <input id="autoSpeak" type="checkbox" /> Auto-speak responses
+            </label>
+            <button id="saveSettings" class="secondary">Save settings</button>
+            <p class="panel-note">Change the backend URL and font size for a more personalized experience.</p>
+          </div>
+          <div class="panel upload-panel">
+            <p class="panel-title">File tools</p>
+            <label>
+              Upload PDF
+              <input id="pdfInput" type="file" accept="application/pdf" />
+            </label>
+            <p id="pdfInfo" class="panel-note">Upload a PDF to extract the first pages of text into your query.</p>
+            <label>
+              Upload image
+              <input id="imageInput" type="file" accept="image/*" />
+            </label>
+            <img id="imagePreview" class="file-preview" alt="Image preview" />
+            <p id="imageInfo" class="panel-note">Image preview is available locally; use it to describe the file or attach details manually.</p>
+          </div>
+          <div class="panel feedback-panel">
+            <p class="panel-title">Feedback</p>
+            <textarea id="feedbackText" class="field" rows="4" placeholder="Share your feedback, ideas, or bug reports."></textarea>
+            <button id="sendFeedback" class="secondary">Send feedback</button>
+            <div id="feedbackResult" class="panel-note"></div>
+            <p class="panel-note">Feedback will be sent to khalilovshamil330@gmail.com when the backend supports email delivery.</p>
+          </div>
+        </div>
         <div class="examples">
           <p class="examples-title">Quick examples</p>
           <div class="chips">
@@ -296,11 +392,14 @@
     </article>
   </main>
   <script>
-    const BACKEND_URL = 'https://cortexwebbackend.onrender.com';
-    const STATUS_URL = `${BACKEND_URL}/api/status`;
-    const ASK_URL = `${BACKEND_URL}/api/ask`;
+    const DEFAULT_BACKEND_URL = 'https://cortexwebbackend.onrender.com';
+    const BACKEND_URL_KEY = 'cortex_v_backend_url';
     const HISTORY_KEY = 'cortex_v_history';
     const THEME_KEY = 'cortex_v_theme';
+    const FONT_SIZE_KEY = 'cortex_v_font_size';
+    const TTS_ENABLED_KEY = 'cortex_v_tts_enabled';
+    const AUTO_SPEAK_KEY = 'cortex_v_auto_speak';
+
     const queryInput = document.getElementById('query');
     const responseDiv = document.getElementById('response');
     const sendButton = document.getElementById('send');
@@ -310,25 +409,69 @@
     const statusDot = document.getElementById('statusDot');
     const statusLast = document.getElementById('statusLast');
     const historyList = document.getElementById('historyList');
+    const backendInput = document.getElementById('backendUrl');
+    const fontSizeSlider = document.getElementById('fontSize');
+    const ttsEnabledCheckbox = document.getElementById('ttsEnabled');
+    const autoSpeakCheckbox = document.getElementById('autoSpeak');
+    const saveSettingsButton = document.getElementById('saveSettings');
+    const speakButton = document.getElementById('speak');
+    const copyButton = document.getElementById('copy');
+    const pdfInput = document.getElementById('pdfInput');
+    const pdfInfo = document.getElementById('pdfInfo');
+    const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const imageInfo = document.getElementById('imageInfo');
+    const feedbackText = document.getElementById('feedbackText');
+    const sendFeedbackButton = document.getElementById('sendFeedback');
+    const feedbackResult = document.getElementById('feedbackResult');
+
+    const getBackendUrl = () => localStorage.getItem(BACKEND_URL_KEY) || DEFAULT_BACKEND_URL;
+    const getStatusUrl = () => `${getBackendUrl()}/api/status`;
+    const getAskUrl = () => `${getBackendUrl()}/api/ask`;
+    const getFeedbackUrl = () => `${getBackendUrl()}/api/feedback`;
 
     const setTheme = (theme) => {
       document.body.className = theme === 'light' ? 'light' : 'dark';
       themeToggle.textContent = theme === 'light' ? 'Dark Mode' : 'Light Mode';
       localStorage.setItem(THEME_KEY, theme);
     };
-    const loadTheme = () => setTheme(localStorage.getItem(THEME_KEY) || 'dark');
+
+    const saveSettings = () => {
+      localStorage.setItem(BACKEND_URL_KEY, backendInput.value.trim() || DEFAULT_BACKEND_URL);
+      localStorage.setItem(FONT_SIZE_KEY, fontSizeSlider.value);
+      localStorage.setItem(TTS_ENABLED_KEY, ttsEnabledCheckbox.checked ? '1' : '0');
+      localStorage.setItem(AUTO_SPEAK_KEY, autoSpeakCheckbox.checked ? '1' : '0');
+      applyFontSize(fontSizeSlider.value);
+      feedbackResult.textContent = 'Settings saved locally.';
+    };
+
+    const loadSettings = () => {
+      backendInput.value = localStorage.getItem(BACKEND_URL_KEY) || DEFAULT_BACKEND_URL;
+      fontSizeSlider.value = localStorage.getItem(FONT_SIZE_KEY) || '16';
+      ttsEnabledCheckbox.checked = localStorage.getItem(TTS_ENABLED_KEY) === '1';
+      autoSpeakCheckbox.checked = localStorage.getItem(AUTO_SPEAK_KEY) === '1';
+      applyFontSize(fontSizeSlider.value);
+    };
+
+    const applyFontSize = (size) => {
+      queryInput.style.fontSize = `${size}px`;
+      responseDiv.style.fontSize = `${size}px`;
+    };
+
     const showStatus = (online) => {
       statusDot.classList.toggle('online', online);
       statusDot.classList.toggle('offline', !online);
       statusText.textContent = online ? 'Backend connected' : 'Backend offline';
-      if (!online) {
+      if (!online && responseDiv.textContent.trim() === '') {
         responseDiv.textContent = 'Backend offline; requests may fail.';
       }
     };
+
     const updateLastChecked = () => { statusLast.textContent = `Last checked: ${new Date().toLocaleTimeString()}`; };
+
     async function checkBackend() {
       try {
-        const res = await fetch(STATUS_URL, { method: 'GET' });
+        const res = await fetch(getStatusUrl(), { method: 'GET' });
         if (!res.ok) throw new Error('Status fetch failed');
         const data = await res.json();
         showStatus(data.status === 'ok');
@@ -338,6 +481,7 @@
         updateLastChecked();
       }
     }
+
     const addToHistory = (query) => {
       const normalized = query.trim();
       if (!normalized) return;
@@ -346,6 +490,7 @@
       localStorage.setItem(HISTORY_KEY, JSON.stringify(items));
       renderHistory(items);
     };
+
     const renderHistory = (items) => {
       historyList.innerHTML = items.map(item => `<button type="button" class="history-item">${item}</button>`).join('');
       historyList.querySelectorAll('.history-item').forEach(button => {
@@ -355,7 +500,9 @@
         });
       });
     };
+
     const loadHistory = () => renderHistory(JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'));
+
     async function sendQuery() {
       const query = queryInput.value.trim();
       if (!query) { responseDiv.textContent = 'Please type a question or command.'; return; }
@@ -365,7 +512,7 @@
       sendButton.appendChild(spinner);
       responseDiv.textContent = 'Thinking...';
       try {
-        const res = await fetch(ASK_URL, {
+        const res = await fetch(getAskUrl(), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query }),
@@ -377,6 +524,9 @@
         const data = await res.json();
         responseDiv.textContent = data.response || 'No response returned.';
         addToHistory(query);
+        if (autoSpeakCheckbox.checked) {
+          speakResponse();
+        }
       } catch (error) {
         responseDiv.textContent = 'Error: ' + error.message;
         showStatus(false);
@@ -385,15 +535,122 @@
         sendButton.disabled = false;
       }
     }
+
+    const speakResponse = () => {
+      if (!ttsEnabledCheckbox.checked) {
+        responseDiv.textContent = 'Text-to-speech is disabled in settings.';
+        return;
+      }
+      const text = responseDiv.textContent.trim();
+      if (!text) { responseDiv.textContent = 'Nothing to speak.'; return; }
+      if (!window.speechSynthesis) { responseDiv.textContent = 'Speech synthesis is not supported by this browser.'; return; }
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1;
+      window.speechSynthesis.speak(utterance);
+    };
+
+    const copyResponse = () => {
+      const text = responseDiv.textContent.trim();
+      if (!text) { return; }
+      navigator.clipboard.writeText(text).then(() => {
+        responseDiv.textContent = 'Response copied to clipboard.';
+      }).catch(() => {
+        responseDiv.textContent = 'Unable to copy response.';
+      });
+    };
+
+    const handlePdfUpload = async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      pdfInfo.textContent = `Loading ${file.name}…`;
+      try {
+        const text = await extractPdfText(file);
+        if (text) {
+          queryInput.value = `${queryInput.value.trim()}\n
+[PDF text from ${file.name}]\n${text}`.trim();
+          pdfInfo.textContent = `Loaded text from ${file.name} into your query.`;
+        } else {
+          pdfInfo.textContent = 'Could not extract text from the PDF.';
+        }
+      } catch (err) {
+        pdfInfo.textContent = 'PDF processing failed.';
+      }
+    };
+
+    const extractPdfText = async (file) => {
+      if (!window.pdfjsLib) {
+        pdfInfo.textContent = 'PDF.js is not available.';
+        return '';
+      }
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.226/pdf.worker.min.js';
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+      let text = '';
+      const maxPages = Math.min(pdf.numPages, 3);
+      for (let i = 1; i <= maxPages; i += 1) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        const pageText = content.items.map(item => item.str).join(' ');
+        text += `${pageText}\n\n`;
+      }
+      return text.trim();
+    };
+
+    const handleImageUpload = (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        imagePreview.src = reader.result;
+        imagePreview.style.display = 'block';
+        imageInfo.textContent = `Image loaded: ${file.name}. Use the query area to ask about this image.`;
+        queryInput.value = `${queryInput.value.trim()}\n\n[Image file: ${file.name}]`.trim();
+      };
+      reader.readAsDataURL(file);
+    };
+
+    const sendFeedback = async () => {
+      const message = feedbackText.value.trim();
+      if (!message) {
+        feedbackResult.textContent = 'Please enter your feedback first.';
+        return;
+      }
+      sendFeedbackButton.disabled = true;
+      feedbackResult.textContent = 'Sending feedback…';
+      try {
+        const res = await fetch(getFeedbackUrl(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message, email: 'anonymous@cortex.local' }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Feedback send failed');
+        feedbackResult.textContent = 'Feedback sent successfully.';
+        feedbackText.value = '';
+      } catch (error) {
+        feedbackResult.textContent = `Feedback failed: ${error.message}`;
+      } finally {
+        sendFeedbackButton.disabled = false;
+      }
+    };
+
     sendButton.addEventListener('click', sendQuery);
     clearButton.addEventListener('click', () => { queryInput.value = ''; responseDiv.textContent = ''; queryInput.focus(); });
     themeToggle.addEventListener('click', () => setTheme(document.body.className === 'dark' ? 'light' : 'dark'));
+    saveSettingsButton.addEventListener('click', saveSettings);
+    speakButton.addEventListener('click', speakResponse);
+    copyButton.addEventListener('click', copyResponse);
+    pdfInput.addEventListener('change', handlePdfUpload);
+    imageInput.addEventListener('change', handleImageUpload);
+    sendFeedbackButton.addEventListener('click', sendFeedback);
     document.querySelectorAll('.chip').forEach(chip => chip.addEventListener('click', () => { queryInput.value = chip.dataset.example; queryInput.focus(); }));
     queryInput.addEventListener('keydown', event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendQuery(); } });
     loadTheme();
+    loadSettings();
     loadHistory();
     checkBackend();
     setInterval(checkBackend, 15000);
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.226/pdf.min.js"></script>
 </body>
 </html>

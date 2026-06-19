@@ -7,13 +7,13 @@
   <style>
     :root {
       color-scheme: dark;
-      --bg: #0b1120;
-      --panel: #111827;
-      --panel-soft: #161b2f;
-      --border: rgba(148, 163, 184, 0.14);
-      --text: #e2e8f0;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
+      --bg: #000000;
+      --panel: #121212;
+      --panel-soft: #1d1d1d;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8f8f8;
+      --muted: #c0c0c0;
+      --accent: #f5f5f5;
       --radius: 24px;
     }
     * { box-sizing: border-box; }
@@ -21,9 +21,7 @@
       margin: 0;
       min-height: 100vh;
       font-family: Inter, system-ui, sans-serif;
-      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.14), transparent 18%),
-                  radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.16), transparent 14%),
-                  linear-gradient(180deg, #050816 0%, #08101e 100%);
+      background: linear-gradient(180deg, #000000 0%, #121212 100%);
       color: var(--text);
       overflow-x: hidden;
     }
@@ -55,30 +53,29 @@
       align-items: center;
       gap: 14px;
     }
-    .brand-mark {
-      width: 44px;
-      height: 44px;
-      display: grid;
-      place-items: center;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #36bdf7, #7c3aed);
-      font-weight: 800;
-      color: white;
+    .brand-logo {
+      width: 88px;
+      height: auto;
+      border-radius: 20px;
+      display: block;
+      background: #000;
+      object-fit: contain;
+      box-shadow: 0 12px 30px rgba(255, 255, 255, 0.08);
     }
     .brand-title h1 { margin: 0; font-size: 1.5rem; }
     .brand-title p { margin: 6px 0 0; color: var(--muted); font-size: 0.95rem; line-height: 1.4; }
     .section-title { margin: 0; color: var(--muted); font-size: 0.92rem; text-transform: uppercase; letter-spacing: 0.08em; }
     .button, .chip {
-      border: 1px solid rgba(56, 189, 248, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 14px;
-      background: rgba(56, 189, 248, 0.12);
+      background: rgba(255, 255, 255, 0.08);
       color: var(--text);
       padding: 12px 16px;
       cursor: pointer;
       transition: transform 0.2s ease, background 0.2s ease;
       font-weight: 700;
     }
-    .button:hover, .chip:hover { transform: translateY(-1px); background: rgba(56, 189, 248, 0.18); }
+    .button:hover, .chip:hover { transform: translateY(-1px); background: rgba(255, 255, 255, 0.14); }
     .button.secondary { background: rgba(255, 255, 255, 0.08); }
     .controls { display: flex; gap: 12px; flex-wrap: wrap; }
     .field { width: 100%; border: 1px solid var(--border); border-radius: 18px; background: rgba(15, 23, 42, 0.95); color: var(--text); padding: 16px; font-size: 1rem; outline: none; }
@@ -89,15 +86,16 @@
     .chat-window { min-height: 540px; padding: 22px; display: grid; gap: 18px; }
     .messages { display: grid; gap: 14px; overflow-y: auto; max-height: 520px; padding-right: 4px; }
     .message { border-radius: 24px; padding: 18px 20px; line-height: 1.7; white-space: pre-wrap; }
-    .message.user { justify-self: end; background: rgba(56, 189, 248, 0.14); border: 1px solid rgba(56, 189, 248, 0.25); }
-    .message.assistant { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(148, 163, 184, 0.12); }
+    .message.user { justify-self: end; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); }
+    .message.assistant { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.10); }
     .message strong { display: block; margin-bottom: 8px; }
     .settings-group { display: grid; gap: 12px; }
     .toggle-row { display: flex; align-items: center; gap: 10px; }
     .file-preview { width: 100%; border-radius: 18px; max-height: 220px; object-fit: contain; border: 1px solid var(--border); display: none; }
     .status { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.95rem; }
-    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #f97316; }
-    .status-dot.online { background: #22c55e; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #888888; }
+    .status-dot.online { background: #ffffff; }
+    .status-dot.offline { background: #555555; }
     .chip-list { display: flex; flex-wrap: wrap; gap: 10px; }
     @media (max-width: 1120px) { .layout { grid-template-columns: 1fr; } .panel { position: relative; top: 0; min-height: auto; } }
   </style>
@@ -106,7 +104,7 @@
   <div class="layout">
     <aside class="panel">
       <div class="brand">
-        <div class="brand-mark">C</div>
+        <img class="brand-logo" src="logo.svg" alt="CORTEX logo" />
         <div class="brand-title">
           <h1>CORTEX</h1>
           <p>AI chat assistant with slide tools, file reading, and richer response structure.</p>
@@ -172,7 +170,7 @@
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.226/pdf.min.js"></script>
   <script>
-    const DEFAULT_BACKEND_URL = 'https://cortexwebbackend.onrender.com';
+    const DEFAULT_BACKEND_URL = window.location.protocol.startsWith('http') && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' ? window.location.origin : 'http://127.0.0.1:8080';
     const BACKEND_URL_KEY = 'cortex_v_backend_url';
     const FONT_SIZE_KEY = 'cortex_v_font_size';
     const TTS_ENABLED_KEY = 'cortex_v_tts_enabled';
@@ -206,10 +204,20 @@
     const getBackendUrl = () => localStorage.getItem(BACKEND_URL_KEY) || DEFAULT_BACKEND_URL;
     const getAskUrl = () => `${getBackendUrl()}/api/ask`;
     const getFeedbackUrl = () => `${getBackendUrl()}/api/feedback`;
-    const setStatus = (online) => {
+    const fetchWithTimeout = async (url, options = {}, timeout = 7000) => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeout);
+      try {
+        return await fetch(url, { ...options, signal: controller.signal });
+      } finally {
+        clearTimeout(timer);
+      }
+    };
+    const setStatus = (online, message = '') => {
       statusDot.classList.toggle('online', online);
+      statusDot.classList.toggle('offline', !online);
       statusText.textContent = online ? 'Backend connected' : 'Backend offline';
-      statusLast.textContent = `Last checked: ${new Date().toLocaleTimeString()}`;
+      statusLast.textContent = message ? `(${message}) ${new Date().toLocaleTimeString()}` : `Last checked: ${new Date().toLocaleTimeString()}`;
     };
     const addMessage = (role, text) => {
       const el = document.createElement('div');
@@ -324,12 +332,18 @@ ${text.trim()}`;
       }
     };
     const checkBackend = async () => {
+      statusText.textContent = 'Checking backend...';
       try {
-        const res = await fetch(`${getBackendUrl()}/api/status`);
-        if (res.ok) setStatus(true);
-        else setStatus(false);
-      } catch {
-        setStatus(false);
+        const res = await fetchWithTimeout(`${getBackendUrl()}/api/status`, {}, 7000);
+        if (res.ok) {
+          const data = await res.json().catch(() => null);
+          setStatus(true, data?.message || 'reachable');
+        } else {
+          setStatus(false, `HTTP ${res.status}`);
+        }
+      } catch (err) {
+        const reason = err.name === 'AbortError' ? 'timeout' : err.message;
+        setStatus(false, reason || 'unreachable');
       }
     };
     const buildChips = () => {
